@@ -1,0 +1,333 @@
+\section{Experiments}
+\label{sec:experiments}
+\input{./src_fig/fig_result_image_Case1_PU}
+To demonstrate the effectiveness of $\SSSTTV$, we conducted mixed noise removal experiments on HS image contaminated with simulated or real noise.
+We compared $\SSSTTV$ with four types of methods; SSTV-based methods, i.e., SSTV~\cite{Aggarwal2016SSTV}, HSSTV~\cite{Takeyama2020HSSTV}, and $\llHTV$~\cite{Wang2021l0l1HTV}; STV-based methods, i.e., STV~\cite{Lefkimmiatis2015STV} and SSST~\cite{Kurihara2017SSST}; LR-based methods, i.e., LRTDTV~\cite{Wang2018LRTDTV}, FGSLR~\cite{Chen2022FGSLR}, and TPTV~\cite{Chen2023TPTV}; and DNN-based methods, i.e., QRNN3D~\cite{Wei2021QRNN3D} and FastHyMix~\cite{Zhuang2023FastHyMix}. 
+Here, HSSTV with $\ell_{1}$-norm and $\ell_{1,2}$-norm are denoted by HSSTV1 and HSSTV2, respectively.
+For a fair comparison, the regularization functions of the P-PDS applicable methods, i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$, STV, and SSST, were replaced with the $\SSSTTV$ regularization function in Prob.~\eqref{prob:S3TTV_denoising}, and we solve each problem by P-PDS.
+For LRTDTV, FGSLR, TPTV, QRNN3D, and FastHyMix, we used implementation codes published by the authors\footnote{The LRTDTV, FGSLR, TPTV, QRNN3D, and FastHyMix implementation codes are available at 
+\\ https://github.com/zhaoxile/Hyperspectral-Image-Restoration-via-Total-Variation-Regularized-Low-rank-Tensor-Decomposition, \\https://chenyong1993.github.io/yongchen.github.io/, \\https://github.com/chuchulyf/ETPTV, \\https://github.com/Vandermode/QRNN3D?tab=readme-ov-file, \\and https://github.com/LinaZhuang/HSI-MixedNoiseRemoval-FastHyMix, respectively.}. For QRNN3D, we performed fine-tuning using Pavia Centre\footnote{\url{https://www.ehu/ccwintco/index/php/Hyperspectral_Remote_Sensing_Scenes}}to improve noise removal performance.
+% For the parameters of existing methods, we used the values recommended in each reference.
+% The experimental environment is MATLAB (R2023a) on a Windows 11 computer 
+% \input{tab_results_mpsnr}
+% \input{tab_results_mssim}
+
+\subsection{Simulated HS Image Experiments}
+%\input{./src_fig/fig_result_image_Case1_PU}
+\input{./src_fig/fig_result_image_Case3_JR}
+\input{./src_fig/fig_result_image_Case4_PU}
+\input{./src_fig/fig_result_image_Case5_BV}
+%\input{fig_result_image_Case2_JR}
+%\input{fig_result_image_Case3_BV}
+%\input{fig_result_image_Case6_PU}
+\input{./src_fig/fig_result_image_Case8_JR}
+
+% \input{fig_result_image_Case1_gray}
+%\input{fig_result_image_Case1_hot}
+% \input{fig_result_image_Case2}
+% \input{fig_result_image_Case3_gray}
+%\input{fig_result_image_Case3_hot}
+% \input{fig_result_image_Case6_gray}
+%\input{fig_result_image_Case6_hot}
+
+%We adopt two HS image datasets which have different structures information.
+%
+%\subsubsection{Jasper Ridge}  This HS image was captured using an Airborne Visible/Infrared Imaging Spectrometer (AVIRIS) sensor in a rural area of California, USA.
+%Jasper Ridge consists of a large river in the center and fine structure on the left and right.
+%The resolution of the original data is $512 \times 614$ pixels with 224 spectral bands per pixel.
+%% The spatial size of the original data is $512 \times 614$ pixels, and each pixel have spectral information with 224 bands ranging from 380 nm to 2500 nm.
+%After removing several noisy bands and cropping the original data, we obtained the HS image with $100 \times 100$ pixels and 198 bands.
+%
+%\subsubsection{Pavia University}  This HS image was captured using a Reflective Optics System Imaging Spectrometer (ROSIS) sensor in Pavia, northern Italy.
+%Pavia University consists of complex structures.
+%The resolution of the original data is $610 \times 610$ pixels with 103 spectral bands per pixel.
+%% The spatial size of the original data is $610 \times 610$ pixels, and each pixel has spectral information with 103 bands.
+%After removing several noisy bands and cropping the original data, we obtained the HS image with $120 \times 120$ pixels and 99 bands.
+%
+%\subsubsection{Beltsville} This HS image was captured using a Reflective Optics System Imaging Spectrometer (ROSIS) sensor in Pavia, northern Italy.
+%Pavia University consists of complex structures.
+%The resolution of the original data is $610 \times 610$ pixels with 103 spectral bands per pixel.
+%% The spatial size of the original data is $610 \times 610$ pixels, and each pixel has spectral information with 103 bands.
+%After removing several noisy bands and cropping the original data, we obtained the HS image with $120 \times 120$ pixels and 99 bands.
+
+
+As ground-truth HS images, we adopt three HS image dataset: \textit{Jasper Ridge}\footnote{\url{https://rslab.ut.ac.ir/data}} cropped to size $100 \times 100 \times 198$, \textit{Pavia University}\footnote{\url{https://www.ehu/ccwintco/index/php/Hyperspectral_Remote_Sensing_Scenes}} cropped to size $120 \times 120 \times 98$, and \textit{Beltsville}\footnote{\url{https://www.spectir.com/contact#free-data-samples}} cropped to size $100 \times 100 \times 128$.
+All the intensities of three HS images were normalized within the range $[0, 1]$.
+
+HS images are often degraded by a mixture of various types of noise in real-world scenarios.
+Thus, in the experiments, we consider the following eight cases of noise contamination:
+% Thus, we set six conditions of Gaussian noise with different standard deviations $\StanDevGauss$, salt-and-pepper noise with different rates $\RateSparse$, and stripe noise with different rates $\RateStripe$.
+\begin{itemize}
+	\setlength{\leftskip}{18pt}
+	% \item [Case 1:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$.
+	% \item [Case 2:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.1$.
+	\item [Case 1:] The observed HS image is contaminated by only white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$.
+	\item [Case 2:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$ and salt-and-pepper noise with the rate $\RateSparse = 0.05$.
+	\item [Case 3:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.1$ and salt-and-pepper noise with the rate $\RateSparse = 0.05$.
+	\item [Case 4:] {The observed HS image is contaminated by only vertical stripe noise whose intensity is uniformly random in the range $[-0.5, 0.5]$ with the rate $\RateStripe = 0.05$.}
+	\item [Case 5:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$ and vertical stripe noise whose intensity is uniformly random in the range $[-0.5, 0.5]$ with the rate $\RateStripe = 0.05$.
+	\item [Case 6:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.1$ and vertical stripe noise whose intensity is uniformly random in the range $[-0.5, 0.5]$ with the rate $\RateStripe = 0.05$.
+	\item [Case 7:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$, salt-and-pepper noise with the rate $\RateSparse = 0.05$, and vertical stripe noise whose intensity is uniformly random in the range $[-0.5, 0.5]$ with the rate $\RateStripe = 0.05$.
+	\item [Case 8:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.1$, salt-and-pepper noise with the rates $\RateSparse = 0.05$, and vertical stripe noise whose intensity is uniformly random in the range $[-0.5, 0.5]$ with the rates $\RateStripe = 0.05$.
+	% \item [Case 5:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.05$ and salt-and-pepper noise with the rate $\RateSparse = 0.05$. In addition, the observed HS image is corrupted by vertical stripe noise whose intensity is uniformly random in the range $[-0.3, 0.3]$.
+	% \item [Case 6:] The observed HS image is contaminated by white Gaussian noise with the standard deviation $\StanDevGauss = 0.1$ and salt-and-pepper noise with the rate $\RateSparse = 0.05$. In addition, the observed HS image is corrupted by vertical stripe noise whose intensity is uniformly random in the range $[-0.3, 0.3]$.
+\end{itemize}
+
+\input{./src_fig/tab_Hyperparam}
+
+The block size of $\SSSTTV$ was set to $10 \times 10 \times \NumBand$.
+The radii $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$ were set as follows:
+\begin{equation}
+	\label{eq:RadiusSet}
+	\RadiusSparse = \ParamsRadius \tfrac{\NumAll \RateSparse}{2}, \:
+	\RadiusStripe = \ParamsRadius \tfrac{0.5 \NumAll \RateStripe (1 - \RateSparse)}{2}, \: \RadiusFidel = \ParamsRadius \sqrt{\StanDevGauss^2 \NumAll (1 - \RateSparse)},
+\end{equation}
+where the parameter $\ParamsRadius$ was set to $0.95$.
+The hyperparameters, including the comparison methods, are shown in Table~\ref{tab:HyperParam}.
+For specific cases, adjustments were made to improve the accuracy of the parameter settings. In Case 1, where only Gaussian noise is present, the noise concentrates more on the corresponding term compared to mixed noise cases. To reflect this, $\ParamsRadius$ was set to $0.98$. Similarly, in Case 4, where only Stripe noise is present, $\ParamsRadius$ was also set to $0.98$ for the same reason. Furthermore, in Case 4, the fidelity term $\| v - u - t \|_{2}$ becomes zero, which can lead to instability in the solution. To address this, $\RadiusFidel$ was fixed to $0.01$ to ensure stability.
+The stopping criterion of Alg.~1 were set as follows:
+\begin{equation}
+	\label{eq:StopCri_simulated}
+	\frac{\| \HSIClean^{(\IndexAlg+1)} - \HSIClean^{(\IndexAlg)} \|_2}{\| \HSIClean^{(\IndexAlg)}\|_{2}} < 1.0 \times 10^{-5}.
+\end{equation}
+% The radiuses $\RadiusFidel$ in (\ref{eq:constraint_l2ball}) and $\RadiusSparse$ (\ref{eq:constraint_l1ball}) were set to $\ParamsRadius \sqrt{\StanDevGauss^2 \NumBand \NumPixel (1 - \RateSparse)}$, $\ParamsRadius \tfrac{\NumBand \NumPixel \RateSparse}{2}$, respectively, where the parameter $\ParamsRadius$ was set to $0.93$.
+% The radiuses $\RadiusFidel$ and $\RadiusSparse$ were set as $\RadiusFidel = \ParamsRadius \sqrt{\StanDevGauss^2 \NumVert \NumHori \NumBand (1 - \RateSparse)}$, $\RadiusSparse = \ParamsRadius \tfrac{\NumVert \NumHori \NumBand \RateSparse}{2}$, respectively, where the parameter $\ParamsRadius$ was set to $0.93$.
+% The stopping criterion of Alg.~1 were set to $\frac{\| \HSIClean^{(\IndexAlg+1)} - \HSIClean^{(\IndexAlg)} \|_2}{\| \HSIClean^{(\IndexAlg)}\|_{2}} < 1.0 \times 10^{-5}$.
+
+For the quantitative evaluation, we employed the mean peak signal-to-noise ratio (MPSNR):
+\begin{equation}
+	\label{eq:MPSNR}
+	\mathrm{MPSNR} = \frac{1}{\NumBand} \sum_{\IndexBand=1}^{\NumBand} 10\log_{10}\frac{\NumVert \NumHori}{\|\HSIClean_{\IndexBand} - \bar{\HSIClean}_{\IndexBand}\|_{2}^{2}},
+\end{equation}
+and the mean structural similarity index (MSSIM)~\cite{Wang2004SSIM}:
+\begin{equation}
+	\label{eq:MSSIM}
+	\mathrm{MSSIM} = \frac{1}{\NumBand} \sum_{\IndexBand=1}^{\NumBand} \mathrm{SSIM}(\HSIClean_{\IndexBand}, \bar{\HSIClean}_{\IndexBand}),
+\end{equation}
+% the spectral angle mapper (SAM)
+where $\HSIClean_{\IndexBand}$ and $\bar{\HSIClean}_{\IndexBand}$ are the $\IndexBand$-th band of the ground true HS image $\HSIClean$ and the estimated HS image $\bar{\HSIClean}$, respectively.
+Generally, higher MPSNR and MSSIM values are corresponding to better denoising performances. Because the boundary conditions are circulant, we evaluate them by cutting off the first and last three bands. 
+
+% % \input{fig_result_image_Case1_gray}
+% \input{fig_result_image_Case1_hot}
+% % \input{fig_result_image_Case2}
+% % \input{fig_result_image_Case3_gray}
+% \input{fig_result_image_Case3_hot}
+% % \input{fig_result_image_Case6_gray}
+% \input{fig_result_image_Case6_hot}
+\setcounter{subsubsection}{0}
+\subsubsection{Quantitative Comparison}
+\label{subsubsec:QuantitativeComparison}
+Tables~\ref{tab:MPSNR} and~\ref{tab:MSSIM} respectively show MPSNRs and MSSIMs in the experiments on the HS image contaminated with simulated noise. The best and second best results are highlighted in bold and underlined, respectively.
+STV is worse in all cases. The SSST results show high MSSIM results in Case 6 (stripe noise only) for MSSIMs. However, its effectiveness declines when the HS image is contaminated with sparse noise. Similarly, the performance of LRTDTV drops when affected by stripe noise. TPTV performs well in Case 4, achieving the highest MPSNRs under contamination by only stripe noise, but shows a decline in cases involving higher levels of Gaussian noise. QRNN3D performs well for Pavia University, but shows limited performance for Jasper Ridge and Beltsville. FastHyMix generally achieves high performance in Gaussian and sparse noise removal experiments, but exhibits significant performance drops under contamination by stripe noise. In contrast, SSTV, HSSTV1, HSSTV2, $\llHTV$, and FGSLR exhibit more stable performance across different noise types. Among these methods, HSSTV1 shows superior MSSIM performance for Jasper Ridge and Pavia University, while FGSLR shows superior MSSIM performance for Beltsville. On the other hand, $\SSSTTV$ achieves the best MPSNRs in most cases, and in the two exceptions, it still ranks second highest. Moreover, $\SSSTTV$ shows a high overall performance independent of the HS images.
+
+%FastHyMix generally achieves high performance in Gaussian and sparse noise removal experiments, but exhibits significant performance drops in Cases 2 and 3 of Jasper Ridge, indicating a lack of stability.
+
+%The SSTV-type methods, including SSTV, HSSTV1, HSSTV2, and $\llHTV$, outperform STV, SSST. Among these SSTV-type methods, HSSTV1 performs better for MSSIMs of Jasper Ridge and Pavia University. The deep learning-based method FastHyMix generally achieves high performance in Gaussian and sparse noise removal experiments. However, it exhibits significant performance drops in Cases 2 and 3 of Jasper Ridge, indicating a lack of stability. Additionally, FastHyMix performs poorly in the presence of stripe noise. TPTV yields overall higher MPSNRs and MSSIMs than the other existing methods, most notably for the MSSIMs of Jasper Ridge. However, in Cases 3 and 4, MPSNRs of TPTV are worse than those of the SSTV-based methods. On the other hand, $\SSSTTV$ achieves the best MPSNRs in most cases, and in the two exceptions, it still ranks second highest. Moreover, $\SSSTTV$ shows a high overall performance independent of the HS images.
+
+
+%STV is worse in all cases. The SSST results show high performance in stripe noise removal, especially in Case 6 for MSSIMs. However, its effectiveness is degraded when the HS image is contaminated with sparse noise. As for LRTDTV, its performance drops when stripe noise is included. The SSTV-type methods, including SSTV, HSSTV1, HSSTV2, and $\llHTV$, outperform STV, SSST, and LRTDTV. Among the SSTV-type methods, HSSTV1 performs better for MSSIMs of Pavia University. TPTV yields overall higher MPSNRs and MSSIMs than the other existing methods, most notably for the MSSIMs of Jasper Ridge. However, in Cases 3 and 4, MPSNRs of TPTV are worse than those of the SSTV-based methods. On the other hand, $\SSSTTV$ achieves the best MPSNRs in most cases, and in the two exceptions, it still ranks second highest. Moreover, $\SSSTTV$ shows a high overall performance independent of the HS images.
+
+% The SSST results show favorable stripe noise removal, especially in Case 4 for the MSSIMs.
+% The results of SSST shows robustness to stripe noise, especially in Case 4 for the MSSIMs.
+
+% Conversely, the performance of LRTDTV worsens when stripe noise is contaminated.
+% Conversely, the performance of LRTDTV declines when stripe noise is contaminated.
+
+% TPTV yields higher results than the other existing methods, most notably for the MSSIMs in Jasper Ridge.
+% TPTV shows higher evaluation results than the other existing methods, most notably for the MSSIMs in Jasper Ridge.
+% TPTV shows more valuable results than the other existing methods, most notably for the MSSIMs in Jasper Ridge.
+% The SSTV-type methods, including SSTV, HSSTV1, HSSTV2, and $\llHTV$, outperform these methods.
+% Among SSTV-type methods, HSSTV1 performs better for MSSIMs in Pavia University.
+% TPTV shows stronger results than the other existing methods, most notably for the MSSIMs in Jasper Ridge.
+
+% FGSLRとTPTVはLRTDTVと異なり、stripe noiseには依存せず、Gaussian noiseのsigmaに依存しており、Case1, 4, 6, 8で性能が似ている
+% FGSLRはMSSIMで高い値、TPTVはCase2で高い性能を示している。
+% SSTVタイプは～
+% FastHyMixはCase1のONly Gaussianでは性能良い
+% ただし、他のケースでは安定しない。特に画像がJasper Ridgeのとき
+% 提案法は～
+
+
+
+
+\subsubsection{Visual Quality Comparison for restored images}
+Figs.~\ref{fig:result_image_Case1_PU}-\ref{fig:result_image_Case8_JR} show the results of HS image denoising and destriping.
+The lower row images are the absolute difference between the original image and each restored image.
+
+
+Fig.~\ref{fig:result_image_Case1_PU} shows the denoising results for Pavia University in Case 1, i.e. under contamination by only Gaussian noise, and Fig.~\ref{fig:result_image_Case3_JR} shows the results for Jasper Ridge in Case 3, which adds sparse noise to the Gaussian noise condition Case 1.
+In both cases, the restored images by STV, SSST, and FGSLR in $\IndexSTV$, $\IndexSSST$, and $\IndexFGSLR$ exhibit significant spatial over-smoothing, losing fine spatial details. The restored images by the SSTV-based methods (SSTV, HSSTV1, HSSTV2, and l0-l1HTV) in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ have more structure than those of STV, SSST, and FGSLR. However, in Case 3, edges and textures appear in these difference images between the ground-truth and these restored images. Especially in the enlarged images, the edges of the road are clearly visible. In other words, these detailed structures are lost in the restored images. LRTDTV and TPTV manage to maintain structural details, but residual noise remains in both cases. Compared to these methods, QRNN3D removes noise more effectively while preserving structures, but the overall brightness is noticeably shifted in both cases. Similarly, the restored image by FastHyMix in Case 3 appears overly bright, likely due to outliers from sparse noise. In contrast, FastHyMix performs best in Gaussian noise removal in Case 1. On the other hand, as shown in $\IndexSSSTTV$, the proposed method, $\SSSTTV$, consistently removes noise while preserving structural details in both cases. In particular, the edges of the road in the enlarged area of both restored images are effectively reconstructed.
+
+
+
+%Fig.~\ref{fig:result_image_Case1_PU} shows the denoising results for Beltsville in Case 1, i.e. under contamination by only Gaussian noise. The restored image by STV in $\IndexSTV$ shows significant over-smoothing, where finer details are lost. In contrast, SSST achieves better restoration performance by incorporating spectral differences in the regularization function. However, in the enlarged area of the difference image, vertical lines are visible, indicating that some edges in the restored image have been lost. A similar issue is observed in the restored images by HSSTV1 and LRTDTV in $\IndexHSSTVOne$ and $\IndexLRTDTV$. On the other hand, other methods, including the proposed method, successfully remove the noise while preserving the structural details. The difference image of the proposed method is closest to black after that of FastHyMix, indicating that it achieves sufficient noise removal while effectively maintaining image quality.
+
+
+Fig.~\ref{fig:result_image_Case4_PU} shows the denoising results for Pavia University in Case 4, i.e. under contamination by only stripe noise, and Fig.~\ref{fig:result_image_Case5_BV} shows the results for Beltsville in Case 5, which adds Gaussian noise to the stripe noise condition Case 4.
+TPTV restores structural details most effectively in Case 4. However, including Case 5, TPTV fails to remove the stripe noise. LRTDTV also leaves even more residual stripe noise. These arise from the mischaracterization of stripe noise. Another TV-LR hybrid method, FGSLR, effectively removes stripe noise, although brightness values are shifted in Case 5. The restored image by the deep learning-based method FastHyMix in $\IndexFastHyMix$ shows residual stripe noise, likely because the spatial correlation of stripe noise led the model to misinterpret the noise as significant features. Similarly, in Case 4, the restored image by QRNN3D in $\IndexQRNND$ also retains stripe noise at the locations indicated by arrows, but QRNN3D appears more robust than FastHyMix. As for other methods, including our method, stripe noise is adequately removed. This is thanks to the second and third constraints in Eq.~\eqref{prob:S3TTV_denoising} that characterize stripe noise. Furthermore, the methods that mainly use the second-order spatio-spectral differences, i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$, and our method fully recover HS images without over-smoothing.
+
+%Fig.~\ref{fig:result_image_Case6_PU} shows the denoising results for Pavia University in Case 6, i.e. under contamination by both Gaussian and stripe noise. In the restored images by LRTDTV and TPTV, white lines are present. These occur due to the mischaracterization of stripe noise. Furthermore, similar to Case 2, FastHyMix shows more residual stripe noise. As for other methods, including our method, stripe noise is adequately removed. This is thanks to the second and third constraints in Eq.~\eqref{prob:S3TTV_denoising} that characterize stripe noise. Furthermore, the methods that mainly use the second-order spatio-spectral differences, i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$, FGSLR, and our method fully recover HS images without over-smoothing.
+
+%Fig.~\ref{fig:result_image_Case6_PU} shows the denoising results for Pavia University in Case 6, i.e. under contamination by both Gaussian and stripe noise. As indicated by the rightward arrow in $\IndexTPTV$, the black line exists in the restored HS image by TPTV. More stripe noise remains in the restored HS image by LRTDTV, including that indicated by the leftward arrows. These occur due to the mischaracterization of stripe noise. As for other methods, including our method, stripe noise is adequately removed. This is thanks to the second and third constraints in Eq.~\eqref{prob:S3TTV_denoising} that characterize stripe noise. Furthermore, the methods that mainly use the second-order spatio-spectral differences, i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$, and our method fully recover HS images without over-smoothing.
+
+
+%Fig.~\ref{fig:result_image_Case6_PU} shows the denoising results for Pavia University in Case 6, i.e. under contamination by both Gaussian and stripe noise. In the restored images by LRTDTV and TPTV, white lines are present. These occur due to the mischaracterization of stripe noise. Furthermore, similar to Case 2, FastHyMix shows more residual stripe noise. As for other methods, including our method, stripe noise is adequately removed. This is thanks to the second and third constraints in Eq.~\eqref{prob:S3TTV_denoising} that characterize stripe noise. Furthermore, the methods that mainly use the second-order spatio-spectral differences, i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$, FGSLR, and our method fully recover HS images without over-smoothing.
+
+%Fig.~\ref{fig:result_image_Case2_JR} shows the denoising results for Jasper Ridge in Case 2, i.e. under contamination by only stripe noise. The SSTV-based and STV-based methods successfully remove the stripe noise, however, in the enlarged area of the difference images, the road lines remain visible, indicating a loss of structural details. A similar pattern is observed for LRTDTV and FGSLR, where certain structural details remain partially degraded. On the other hand, TPTV retains stripe noise at the locations indicated by the arrow, but achieves the most effective noise removal in the rest of the image. FastHyMix also shows residual stripe noise, and it appears that the spatial correlation of the stripe noise led to incorrect feature extraction, resulting in visible artifacts. The proposed method, S3TTV, stands out by effectively removing the stripe noise while maintaining the underlying structural integrity of the image.
+
+
+%Fig.~\ref{fig:result_image_Case3_BV} shows the denoising results for Beltsville in Case 3, i.e. under contamination by both Gaussian and sparse noise. In the restored images by STV and SSST in $\IndexSTV$ and $\IndexSSST$, spatial over-smoothing occurs, particularly in the upper left part of the restored images, because the nuclear norm of the “first-order" differences is directly suppressed. The restored images by SSTV-based methods (SSTV, HSSTV1, HSSTV2, and $\llHTV$), FGSLR, and FastHyMix in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, $\IndexllHTV$, $\IndexFGSLR$, and $\IndexFastHyMix$ have more structure than those by STV and SSST. However, edges and textures appear in these difference images between the ground-truth and these restored images. Especially in the enlarged area, the vertical edges are clearly visible.
+%In other words, these detailed structures are lost in the restored images. On the other hand, as shown in $\IndexTPTV$ and $\IndexSSSTTV$, TPTV and $\SSSTTV$ achieve higher restoration performance than the methods presented above.
+
+%Fig.~\ref{fig:result_image_Case3_BV} shows the denoising results for Beltsville in Case 3, i.e. under contamination by both Gaussian and sparse noise. In the restored images by STV and SSST in $\IndexSTV$ and $\IndexSSST$, spatial over-smoothing occurs, particularly in the upper left part of the restored images, because the nuclear norm of the “first-order" differences is directly suppressed. The restored images by SSTV-based methods (SSTV, HSSTV1, HSSTV2, and $\llHTV$) in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ have more structure than those by STV and SSST. However, edges and textures appear in these difference images between the ground-truth and these restored images. Especially in the enlarged images, the edges of the road are clearly visible. In other words, these detailed structures are lost in the restored images. On the other hand, as shown in $\IndexTPTV$ and $\IndexSSSTTV$, TPTV and $\SSSTTV$ achieve higher restoration performance than the methods presented above.
+
+% In $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, $\IndexllHTV$, and $\IndexLRTDTV$, SSTV-based methods (SSTV, HSSTV1, HSSTV2, and $\llHTV$) and LRTDTV restore more structure than STV and SSST.
+% These results indicate that detailed structure is lost.
+% Furthermore, the difference image of $\SSSTTV$ in $\IndexSSSTTV$ is closest to black.
+% This suggests that $\SSSTTV$ can remove noise while retaining edges and textures with highest accuracy.
+% HS images without over-smoothing observed in the results of STV and SSST.
+
+
+Fig.~\ref{fig:result_image_Case8_JR} shows the denoising results for Jasper Ridge in Case 8, which is the most contaminated case with Gaussian, sparse, and stripe noise. 
+For STV and SSST in $\IndexSTV$ and $\IndexSSST$, no stripe noise remains in the restored images, but edges and textures are lost along with the noise, because the nuclear norm of the ``first-order'' differences is directly suppressed. SSTV, HSSTV1, HSSTV2, and $\llHTV$ in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ restore edges and textures more clearly than STV and SSST, but still remove some edges and textures (see the difference images in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ of Fig.~\ref{fig:result_image_Case8_JR}). This would be due to the fact that these methods suffer more from the limitation of referring only to adjacent pixels/bands. LRTDTV and TPTV almost recover edges and textures in the restored images of $\IndexLRTDTV$ and $\IndexTPTV$, but as in Case 4 and Case 5, stripe noise remains at the positions indicated by the arrows. Unlike LRTDTV and TPTV, FGSLR successfully removes stripe noise, however, edges and textures remain in the difference image, similar to the SSTV-based methods. In the results of FastHyMix, stripe noise remains, and the overall brightness values are shifted. For QRNN3D, the restored image in $\IndexQRNND$ shows even greater changes in brightness across the entire image. This is likely because, under high-intensity mixed noise conditions, it is challenging to automatically extract features such as spectral low-rankness and spatial correlations. On the other hand, the difference image of $\SSSTTV$ in $\IndexSSSTTV$ is closer to black than the other methods. Furthermore, no edges or textures are visible in the enlarged image. These suggest that $\SSSTTV$ removes Gaussian, sparse, and stripe noise most effectively and recovers edges and textures with the highest accuracy.
+
+%Fig.~\ref{fig:result_image_Case8_JR} shows the denoising results for Jasper Ridge in Case 8, which is the most contaminated case with Gaussian, sparse, and stripe noise. For STV and SSST in $\IndexSTV$ and $\IndexSSST$, no stripe noise remains in the restored images, but edges and textures are lost along with the noise. SSTV, HSSTV1, HSSTV2, and $\llHTV$ in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ restore edges and textures more clearly than STV and SSST, but still remove some edges and textures (see the difference images in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ of Fig.~\ref{fig:result_image_Case8_JR}). This would be due to the fact that these methods suffer more from the limitation of referring only to adjacent pixels/bands. LRTDTV and TPTV almost recover edges and textures in the restored images of $\IndexLRTDTV$ and $\IndexTPTV$, but as in Case 3, stripe noise remains at the positions indicated by the arrows. On the other hand, the difference image of $\SSSTTV$ in $\IndexSSSTTV$ is closer to black than the other methods.
+%Furthermore, no edges or textures are visible in the enlarged image. These suggest that $\SSSTTV$ removes Gaussian, sparse, and stripe noise most effectively and recovers edges and textures with the highest accuracy.
+
+% SSTV, HSSTV1, HSSTV2, and $\llHTV$ in $\IndexSSTV$, $\IndexHSSTVOne$, $\IndexHSSTVTwo$, and $\IndexllHTV$ can remove some noise without causing obvious over-smoothing like STV and SSST. 
+% However, in the difference images, edges and textures are more present than in the results of Case 1 in Fig.~\ref{fig:result_image_Case1}.
+% These suggest that the proposed method is least sensitive to Gaussian noise, sparse noise, and stripe noise, and can recover edges and textures with highest accuracy.
+% These suggest that the proposed method is the most robust against Gaussian noise, sparse noise, and stripe noise, and can recover edges and textures with highest accuracy.
+
+\subsubsection{Visual Quality Comparison for restored spectra}
+\input{./src_fig/fig_SAM_map}
+%\input{./src_fig/fig_spectra}
+%To assess the spectral restoration accuracy, we analyzed both the Spectral Angle Mapper (SAM) maps and the spectral responses of the restored HS images.
+%
+%Fig.~\ref{fig:sam_map} shows the SAM maps for Jasper Ridge, Pavia University, and Beltsville under Case 8. 
+
+To assess the spectral restoration accuracy, we analyzed the 2-D Spectral Angle Mapper (SAM) for Jasper Ridge, Pavia University, and Beltsville under Case 8 in Fig.~\ref{fig:2D_SAM}.
+The 2-D SAM at the $(\IndexVert, \IndexHori)$-th pixel is computed as:
+\begin{equation}
+	\label{eq:2D_SAM}
+	\mathrm{SAM} (\IndexVert, \IndexHori) = \arccos \left( \frac{\HSIClean_{\IndexVert, \IndexHori}^{\top} \bar{{\HSIClean}}_{\IndexVert, \IndexHori}}{\|\HSIClean_{\IndexVert, \IndexHori} \|_{2} \|\bar{{\HSIClean}}_{\IndexVert, \IndexHori} \|_{2}} \right),
+\end{equation}
+where $\HSIClean_{\IndexVert, \IndexHori} \in \RealSpace{\NumBand}$ and $\bar{{\HSIClean}}_{\IndexVert, \IndexHori} \in \RealSpace{\NumBand}$ are the spectral vectors at pixel $(\IndexVert, \IndexHori)$ in the clean HS image and the restored HS image, respectively. Since the boundary conditions are circulant, we evaluate them by cutting off the first and last three bands.
+QRNN3D in $\IndexQRNND$ yields relatively high SAM values across the entire image, indicating spectral distortion.
+The SAM maps of LRTDTV, TPTV, and FastHyMix in $\IndexLRTDTV$, $\IndexTPTV$, and $\IndexFastHyMix$ retain stripe noise.
+Across all methods, high SAMs are observed in regions with low signal intensity, such as the verticallly extended red area in Jasper Ridge and the horizontally extended red area in Beltsville. This is due to the higher sensitivity of low-intensity signals to noise contamination. On the other hand, HSSTV1 in Jasper Ridge and FGSLR in Beltsville achieve lower SAMs. This indicates that these methods perform well in regions where the same material is continuously present.
+However, the existing methods, especially STV, SSST, and FGSLR, exhibit worse SAMs in material boundaries and fine structures, such as roads and trenches. This effect is caused by spectral values being overly influenced by neighboring different spectra.
+In contrast, $\SSSTTV$ excels at restoring spectral details in these complex regions with mixed materials. The enlarged areas in Fig.~\ref{fig:2D_SAM} show that $\SSSTTV$ achieves the lowest SAMs at the roads and the material boundaries.
+Such high-precision restoration in mixed-material regions is valuable for applications where accurate spectral differences between materials are critical for analysis, such as mineral exploration and landmine detection.
+
+%The SAM maps of LRTDTV, TPTV, and FastHyMix retain stripe noise.
+%Across all methods, higher SAM values are observed in regions with low signal intensity, such as the central vertical area in Jasper Ridge and the central horizontal area in Beltsville. This is due to the higher sensitivity of low-intensity signals to noise contamination. On the other hand, HSSTV1 in Jasper Ridge and FGSLR in Beltsville achieve lower SAMs. This indicates that their methods perform well in regions where the same material is continuously present. 
+%
+%The SAM maps of LRTDTV, TPTV, and FastHyMix in $\IndexLRTDTV$, $\IndexTPTV$, and $\IndexFastHyMix$ retain stripe noise. 
+%Across all methods, regions with low signal intensity—such as the central vertical area in Jasper Ridge and the central horizontal area in Beltsville—exhibit higher SAM values
+%All methods show larger SAMs in regions with low intensity signals, such as the central vertical area in Jasper Ridge and the central horizontal area in Beltsville. This is likely due to the higher sensitivity of low-intensity signals to noise contamination. 
+%
+%In general, all methods show larger SAM values in regions with low signal intensity, such as the central vertical area in Jasper Ridge and the central horizontal area in Beltsville. This can be attributed to the greater sensitivity of low-signal regions to noise interference.
+%
+%
+%
+%However, methods like LRTDTV, TPTV, and FastHyMix exhibit increased SAM values due to their inability to effectively remove stripe noise. Conversely, other methods successfully mitigate stripe noise. Particularly in Beltsville, SSST and FGSLR demonstrate low SAM values across most regions, yet struggle to accurately restore spectral information at the edges, such as roads or material boundaries, where spectral discontinuities occur.
+%
+%In contrast, S3TTV excels in these edge regions, effectively recovering spectral details even in complex areas with mixed materials like roads, vegetation, and water bodies. The zoomed-in sections of Fig. 7 reveal that S3TTV consistently achieves the lowest SAM values, highlighting its superior ability to preserve spectral integrity in heterogeneous regions.
+
+
+
+\subsection{Real HS Image Experiment}
+\label{subsec:RealHSIExpt}
+\input{./src_fig/fig_result_image_IndianPines}
+\input{./src_fig/fig_result_image_Suwannee}
+We employed the following two datasets:
+\subsubsection{Indian Pines}  This HS image was captured using the AVIRIS sensor over the Indian Pines test site in North-western Indiana.
+The resolution of the original data is $145 \times 145$ pixels, and each pixel has spectral information with 224 bands ranging from 400 nm to 2500 nm.
+% The spatial size of the original data is $512 \times 614$ pixels, and each pixel have spectral information with 224 bands ranging from 380 nm to 2500 nm.
+After removing several noisy bands and cropping the original data, we obtained the HS image with $120 \times 120$ pixels and 198 bands.
+
+\subsubsection{Suwannee} This HS image was captured using a SpecTIR sensor over the Suwannee River Basin in Florida, USA.
+The resolution of the original HS image is $1200 \times 320$ pixels, and each pixel has spectral information with 360 bands ranging from 400 nm to 2500 nm.
+We cropped the HS image to $100 \times 100$ pixels and 360 bands.
+
+All the intensities of both HS images were normalized within the range $[0, 1]$.
+The block size of $\SSSTTV$ was set to $10 \times 10 \times \NumBand$.
+For the radii $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$, we adjusted them to appropriate values after empirically estimating the intensity of the noise in the real HS image.
+Specifically, for the Indian Pines, $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$ were set to 200, 100, and 30, respectively, and for Suwannee, they were set to 800, 5000, and 100, respectively.
+The stopping criterion of Alg.~1 were set as \eqref{eq:StopCri_simulated}.
+
+Since no reference clean HS image is available, we compare the denoising performance using visual results.
+Fig.~\ref{fig:result_image_IndianPines} shows the HS image denoising and destriping results for Indian Pines. 
+HSSTV1, STV, and SSST cause over-smoothing in the restored images of $\IndexHSSTVOne$, $\IndexSTV$, and $\IndexSSST$. The restored image by QRNN3D in $\IndexQRNND$ has some edges and texture, but it is overall flat. For LRTDTV and TPTV in $\IndexLRTDTV$ and $\IndexTPTV$, noise remains in the restored images. On the other hand, SSTV, HSSTV2, $\llHTV$, FastHyMix, and $\SSSTTV$ achieve sufficient noise removal while preserving edges and textures. In particular, for the enlarged area, SSTV, HSSTV2, FGSLR, and $\SSSTTV$ restore the edges indicated by the arrows, while $\llHTV$ and FastHyMix lose them. This is due to the characterization of the spatial similarity between adjacent bands of HS images using the second-order spatio-spectral differences.
+
+% For visibility, all restored images of Indian Pines are multiplied by 1.5.
+
+% This is due to the fact that these methods incorporate the second-order spatio-spectral differences and separate HS images from noise based on the spatial similarity between adjacent bands that HS images inherently have.
+% In the enlarged areas, $\llHTV$ preserves only diagonal edges, while  also preserve the square edges in the bottom right.
+
+
+Fig.~\ref{fig:result_image_Suwannee} shows the HS image denoising and destriping results for Suwannee.
+The restored images by STV, LRTDTV, TPTV, and FastHyMix in $\IndexSTV$, $\IndexLRTDTV$, $\IndexTPTV$, and $\IndexFastHyMix$ still retain vertical stripe noise.
+For LRTDTV, TPTV, and FastHyMix, this is due to the limitation of stripe noise removal, similar to the results seen in the simulation experiments of Figs.~\ref{fig:result_image_Case4_PU}, ~\ref{fig:result_image_Case5_BV}, and \ref{fig:result_image_Case8_JR}. QRNN3D in $\IndexQRNND$ removes the vertical stripe noise, but residual horizontal noise remains, and the river structure in the enlarged area appears broken.
+In the case of STV, its regularization method, which mainly captures the spatial piecewise-smoothness in HS images, is insufficient to separate the HS image and vertically smooth stripe noise.
+On the other hand, SSTV, HSSTV1, HSSTV2, $\llHTV$, SSST, and $\SSSTTV$ sufficiently remove stripe noise.
+This indicates that the second and third constraints characterizing stripe noise in Eq.~\eqref{prob:S3TTV_denoising} are effective for real stripe noise.
+However, the edges of the restored images by HSSTV1 and SSST in $\IndexHSSTVOne$ and $\IndexSSST$ are smoothed in the enlarged areas.
+Unlike these methods, SSTV, HSSTV2, $\llHTV$, and the proposed method, $\SSSTTV$, achieve the preservation of the narrow river structure while removing noise.
+
+
+\subsection{Discussion}
+\label{subsec:Discussion}
+
+\subsubsection{Convergence Analysis}
+\label{subsubsec:ConvAnal}
+\input{./src_fig/fig_Conv_Anal}
+It is mathematically guaranteed that the variables $\HSIClean, \NoiseSparse, \NoiseStripe$ generated by Alg.~1 converge to a global solution of the proposed convex optimization problem~\cite{Pock2011PPDS}.
+Furthermore, we experimentally examined the convergence of our algorithm.
+Fig.~\ref{fig:Conv_Anal} plots the relative error of HS images: $\| \HSIClean^{(\IndexAlg+1)} - \HSIClean^{(\IndexAlg)} \|_2 / \| \HSIClean^{(\IndexAlg)}\|_{2}$, the objective function values: $\SSSTTV(\HSIClean)$, the mean peak signal-to-noise ratio (MPSNR), and the mean structural similarity index (MSSIM) for \textit{Jasper Ridge},  \textit{Pavia University}, and \textit{Beltsville} in Case 8.
+The relative error of the HS images decreased (Fig.~\ref{fig:Conv_Anal}-(a)).
+The objective function values, MPSNRs, and MSSIMs approached certain values (Fig.~\ref{fig:Conv_Anal}-(b), (c), and (d)).
+From these results, we can confirm experimentally that P-PDS updates the variables to approach the solution of our constrained convex optimization problem.
+
+
+\subsubsection{Parameter Analysis}
+\label{subsubsec:ParamAnal}
+\input{./src_fig/fig_Param_Anal}
+In the proposed method, there are two key parameters: the block size of the semi-local area and the noise-related parameter $\ParamsRadius$. Fig.~\ref{fig:Param_Anal} shows the relationship between these two parameters and the MPSNRs and MSSIMs. For the block size analysis, $\ParamsRadius$ was fixed at $0.95$, while for the $\ParamsRadius$ analysis, the block size was fixed at $[10, 10]$. Due to hardware limitations, the maximum block size was $[16, 16]$.
+
+In Fig.~\ref{fig:Param_Anal}-(a) and (b), the denoising performance is less sensitive to the block size compared to $\ParamsRadius$. As the block size increases, the performance gradually improves; however, larger block sizes also lead to higher computational costs. Therefore, we recommend using a block size of $[10, 10]$.
+In Fig.~\ref{fig:Param_Anal}-(c) and (d), the optimal $\ParamsRadius$ slightly varies depending on the image, but $\ParamsRadius$ in the range of $0.93$ to $0.96$ consistently achieve high performance. In mixed noise conditions, we recommend selecting $\ParamsRadius$ within this range. In this paper, we set the block size to $[10, 10]$ and $\ParamsRadius$ to $0.95$ for all images in the mixed noise condition experiments.
+
+
+\subsubsection{Running time Analysis}
+We measured the actual running times on a Windows 11 computer with an Intel Core i9-13900 1.0 GHz processor, 32GB RAM, and NVIDIA GeForce RTX 4090. For the experiments, all methods except QRNN3D were implemented in MATLAB R2024b. QRNN3D was run in a WSL environment using Python 3.6.13. For SSTV, HSSTV, $\llHTV$, STV, SSST, and $\SSSTTV$, the stopping criterion was set as \eqref{eq:StopCri_simulated}, while for the other methods, the recommended stopping criteria from their respective papers were used.
+
+Table~\ref{tab:Runtime} shows the running times averaged over all noise cases for each image. FastHyMix is the fastest among all methods. The LR-based methods (LRTDTV, FGSLR, and TPTV) are the next fastest. Although the test time of QRNN3D is comparable to these methods, it requires a significant amount of time for pretraining ($4.94 \times 10^{4}$ sec) and fine-tuning ($2.50 \times 10^{3}$ sec). Among the methods based on the same algorithm, the SSTV-based methods i.e., SSTV, HSSTV1, HSSTV2, $\llHTV$ are faster than the STV-based methods i.e., STV, SSST, and $\SSSTTV$. However, the current implementation of the proposed method still has room for computational improvement. The main bottleneck is the calculation of the singular value decomposition used in the proximity operator of the nuclear norm~\ref{eq:prox_nuclear_norm}. This can be accelerated by employing parallel computation or more efficient SVD techniques~\cite{Musco2015Randomized,Struski2024GPUSVD}. In this paper, we adopted a straightforward implementation and prioritized the enhancement of denoising and destriping performance.
+
+\input{./src_fig/tab_runtime.tex}
+
+
+
+\subsubsection{Analysis of First-Order and Second-Order Differences for Regularization}
+\label{subsubsec:SparsityAnal}
+\input{./src_fig/fig_Compare_sparsity}
+We experimentally analyze the effectiveness of first-order and second-order differences in our regularization by examining their ability to differentiate noise from clean HS images.
+We computed the first-order and second-order differences for clean HS images and noise. The noise condition is Case 8. Fig.~\ref{fig:comparison_sparsity} shows the absolute values of these differences for three types of HS images. The results demonstrate that second-order differences have a higher capability to distinguish noise from clean HS images than first-order differences. This indicates that second-order differences are more appropriate for regularization functions.
+
+
+
+
+\subsection{Summary}
+\label{subsec:Expt_summary}
+We summarize the insights from the experiments as follows.
+\begin{enumerate}
+	\item The simulated HS image data experiments demonstrate that $\SSSTTV$ outperforms existing methods in removing mixed noise while preserving edges and textures in HS images with high accuracy. 
+	This indicates that $\SSSTTV$ is the most effective in removing mixed noise.
+	\item The real HS image data experiments show that $\SSSTTV$ has high performance even when observed HS images are degraded by real noise.
+\end{enumerate}
+
+
+% \setcounter{subsubsection}{0}
+% \subsubsection{Discussion}

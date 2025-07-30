@@ -1,0 +1,145 @@
+\section{Preliminaries}
+\label{sec:Preliminaries}
+% \vspace{-4mm}
+
+\subsection{Notations}
+\label{subsec:Notations}
+% \vspace{-2mm}
+Throughout this paper, we denote vectors and matrices by boldface lowercase letters (e.g., $\NotationVector$) and boldface capital letters (e.g., $\NotationMatrix$), respectively.
+We treat an HS image, denoted by $\HSIClean$ with $\NumVert$ vertical pixels, $\NumHori$ horizontal pixels, and $\NumBand$ bands.
+We denote the total number of elements in the HS image by $\NumAll = \NumVert \NumHori \NumBand$.
+For a matrix data $\NotationMatrix \in \RealSpace{\NumVert \times \NumHori}$, the value at the location $(\IndexPrimal, \IndexDual)$ is denoted by $[\NotationMatrix]_{\IndexPrimal,\IndexDual}$.
+The $\ell_{1}$-norm and the $\ell_{2}$-norm of a vector $\NotationVector \in \RealSpace{\NotationNumDim}$ are defined as $\| \NotationVector \|_{1} := \sum_{\NotationIndex=1}^{\NotationNumDim} | \NotationScalar_{\NotationIndex} |$ and $\| \NotationVector \|_{2} := \sqrt{\sum_{\NotationIndex=1}^{\NotationNumDim} \NotationScalar_{\NotationIndex}^{2}}$, respectively, where  $\NotationScalar_{\NotationIndex}$ represents the $\NotationIndex$-th entry of $\NotationVector$.
+The nuclear norm of a marix, which is the sum of all the singular values, is denoted by $\| \cdot \|_{*}$.
+For an HS image $\HSIClean \in \RealSpace{\NumAll}$, let $\DiffOpVert \in \RealSpace{\NumAll \times \NumAll}$, $\DiffOpHori \in \RealSpace{\NumAll \times \NumAll}$, and $\DiffOpBand \in \RealSpace{\NumAll \times \NumAll}$ be the forward difference operators along the horizontal, vertical, and spectral directions, respectively, with the periodic boundary condition.
+Here, a spatial difference operator is denoted by $\DiffOpSp := \begin{pmatrix} \DiffOpVertT & \DiffOpHoriT \end{pmatrix}^{\top} \in \RealSpace{2 \NumAll \times \NumAll}$. 
+Using $\DiffOpVert$, $\DiffOpHori$, and $\DiffOpBand$, we denote the second-order spatio-spectral differences by $\DiffOpVert \DiffOpBand \HSIClean \in \RealSpace{\NumAll}$ and $\DiffOpHori \DiffOpBand \HSIClean \in \RealSpace{\NumAll}$.
+Other notations will be introduced as needed.
+
+
+
+\subsection{Proximal Tools}
+\label{subsec:Prox}
+In this chapter, we introduce basic proximal tools that play a central role in the optimization part of our method.
+Let $\FuncProx$ be a \textit{proper lower semi-continuous convex function}.\footnote{A function $\FuncProx \: : \: \RealSpace{\NumVarProx} \rightarrow ( -\infty, \infty ]$ is called a proper lower semi-continuous convex function if $\lbrace \VarProxOne \in \RealSpace{\NumVarProx} | \FuncProx(\VarProxOne) < \infty \rbrace$ is nonempty, $\lbrace \VarProxOne \in \RealSpace{\NumVarProx} | \FuncProx(\VarProxOne) \leq \alpha \rbrace$ is closed for every $\alpha \in \RealSpace{}$, and $\FuncProx(\lambda \VarProxOne + (1-\lambda)\VarProxTwo) \leq \lambda\FuncProx(\VarProxOne) + (1-\lambda)\FuncProx(\VarProxTwo)$ for every $\VarProxOne, \VarProxTwo \in \RealSpace{\NumVarProx}$ and $\lambda \in (0, 1)$.}
+Then, for $\IndexProx > 0$, the \textit{proximity operator} of $\FuncProx$ is defined by
+\begin{equation}
+	\label{eq:Prox}
+	\prox_{\IndexProx, \FuncProx}(\VarProxOne) := \arg\min_{\VarProxTwo \in \RealSpace{\NumVarProx}} \FuncProx(\VarProxTwo) + \frac{1}{2 \IndexProx} \| \VarProxOne - \VarProxTwo \|_{2}^{2}.
+\end{equation}
+
+
+The \textit{Fenchel--Rockafellar conjugate function} $\FuncProx^{*}$ of the function $\FuncProx$ is defined by
+\begin{equation}
+	\label{eq:ConjugateFunction}
+	\FuncProx^{*}(\VarProxOne) := \sup_{\VarProxTwo} \InnerProduct<\VarProxOne, \VarProxTwo> - \FuncProx(\VarTwo),
+\end{equation}
+where $\InnerProduct<\cdot , \cdot>$ is the Euclidean inner product.
+Thanks to a generalization of Moreau's identity~\cite{Combettes2013Moreau}, the proximity operator of $\FuncProx^{*}$ is calculated as
+\begin{equation}
+	\label{eq:ProxConjugate}
+	\prox_{\IndexProx, \FuncProx^{*}}(\VarProxOne) = \VarProxOne - \IndexProx \prox_{\frac{1}{\IndexProx} \FuncProx} \left( \frac{1}{\IndexProx} \VarProxOne \right).
+\end{equation}
+
+
+The indicator function of a set $\SetConvex \subset \RealSpace{\NumVarOne}$, denoted by $\FuncIndicator{\SetConvex}$, is defined as 
+\begin{equation}
+	\label{eq:Indicator_Function}
+	\FuncIndicator{\SetConvex} (\VarOne) := 
+	\begin{cases}
+		0, & \mathrm{if} \: \VarOne \in \SetConvex, \\
+		\infty, & \mathrm{otherwise}.
+	\end{cases}
+\end{equation}
+The function $\FuncIndicator{\SetConvex}$ is proper lower semi-continuous convex when $\SetConvex$ is nonempty and closed convex.
+The proximity operator of $\FuncIndicator{\SetConvex}$ is equivalent to the projection onto $\SetConvex$, as given by
+\begin{equation}
+	\label{eq:Projection}
+	\prox_{\FuncIndicator{\SetConvex}} (\VarProxOne) = \Projection{\SetConvex}(\VarProxOne) := \argmin_{\VarProxTwo \in \SetConvex} \|\VarProxTwo - \VarProxOne \|_{2}.
+\end{equation}
+
+
+\subsection{Preconditoned Primal-Dual Splitting Method (P-PDS)}
+\label{subsec:P-PDS}
+The standard PDS~\cite{Chambolle2011PDS, Condat2013PDS} and P-PDS~\cite{Pock2011PPDS}, on which our algorithm is based, are efficient algorithms for solving the following generic form of convex optimization problems:
+\begin{align}
+	\label{prob:convex_optim_prob}
+	\min_{\substack{\VarPrimal{1}, \ldots, \VarPrimal{\NumVarPrimal}, \\ 
+			\VarDual{1}, \ldots, \VarDual{\NumVarDual}}} 
+	& \sum_{\IndexPrimal=1}^{\NumVarPrimal} \FuncPrimal{\IndexPrimal} (\VarPrimal{\IndexPrimal}) + \sum_{\IndexDual=1}^{\NumVarDual} \FuncDual{\IndexDual} (\VarDual{\IndexDual}) \nonumber \\ 
+	& \mathrm{s.t.} \:
+	\begin{cases} 
+		\VarDual{1} = \sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{1,\IndexPrimal} \VarPrimal{\IndexPrimal}, \\ 
+		\vdots \\ 
+		\VarDual{\NumVarDual} = \sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{\NumVarDual,\IndexPrimal} \VarPrimal{\IndexPrimal}, 
+	\end{cases}
+\end{align}
+where $\FuncPrimal{\IndexPrimal} (\IndexPrimal = 1, \ldots, \NumVarPrimal)$ and $\FuncDual{\IndexDual} (\IndexDual = 1, \ldots, \NumVarDual)$ are lower semi-continuous proper convex functions, $\VarPrimal{\IndexPrimal} \in \RealSpace{\DimVarPrimal{\IndexPrimal}} \: (\IndexPrimal = 1, \dots, \NumVarPrimal)$ are primal variables, $\VarDual{\IndexDual} \in \RealSpace{\DimVarDual{\IndexDual}} \: (\IndexDual = 1, \dots, \NumVarDual)$ are dual variables, and $\LinOpPPDS{\IndexDual,\IndexPrimal} \in \RealSpace{\DimVarDual{\IndexDual} \times  \DimVarPrimal{\IndexPrimal}}$ ($i = 1, \ldots, \NumVarPrimal$, $j = 1, \ldots, \NumVarDual$) are linear operators.
+
+These methods solve Prob.~\eqref{prob:convex_optim_prob} by the following iterative procedures:
+\begin{equation}
+	\label{algo:P-PDS}
+	\AlgoLfloor{
+		\begin{array}{l}
+			\VarPrimal{1}^{(\IndexAlg+1)} 
+			\leftarrow \prox_{\ScalarStepsize{1, 1}, \FuncPrimal{1}}
+			\left( \VarPrimal{1}^{(\IndexAlg)} - \ScalarStepsize{1,1} \bigl( \sum_{\IndexDual=1}^{\NumVarDual} \LinOpPPDS{\IndexDual,1}^{\top} \VarDual{\IndexDual}^{(\IndexAlg)} \bigr) \right), \\
+			\vdots \\
+			\VarPrimal{\NumVarPrimal}^{(\IndexAlg+1)} 
+			\leftarrow \prox_{\ScalarStepsize{1, \NumVarPrimal}, \FuncPrimal{\NumVarPrimal}}
+			\left( \VarPrimal{\NumVarPrimal}^{(\IndexAlg)} - \ScalarStepsize{1, \NumVarPrimal} \bigl( \sum_{\IndexDual=1}^{\NumVarDual} \LinOpPPDS{\IndexDual,\NumVarPrimal}^{\top} \VarDual{\IndexDual}^{(\IndexAlg)} \bigr) \right), \\
+			\VarPrimal{\IndexPrimal}^{'} = 2\VarPrimal{\IndexPrimal}^{(\IndexAlg+1)} - \VarPrimal{\IndexPrimal}^{(\IndexAlg)} \: (\forall \IndexPrimal = 1, \ldots, \NumVarPrimal), \\
+			\VarDual{1}^{(\IndexAlg+1)}
+			\leftarrow \prox_{\ScalarStepsize{2, 1}, \FuncDual{1}^{*}}
+			\left( \VarDual{1}^{(\IndexAlg)} - \ScalarStepsize{2, 1}
+			\bigl(\sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{1,\IndexPrimal} \VarPrimal{\IndexPrimal}^{'} \bigr) \right), \\
+			\vdots \\
+			\VarDual{\NumVarDual}^{(\IndexAlg+1)}
+			\leftarrow \prox_{\ScalarStepsize{2, \NumVarDual}, \FuncDual{\NumVarDual}^{*}}
+			\left( \VarDual{\NumVarDual}^{(\IndexAlg)} - \ScalarStepsize{2, \NumVarDual}
+			\bigl(\sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{\NumVarDual,\IndexPrimal}  \VarPrimal{\IndexPrimal}^{'} \bigr) \right), \\
+		\end{array}
+	}.
+\end{equation}
+where $\ScalarStepsize{1, \IndexPrimal}(\IndexPrimal = 1, \dots, \NumVarPrimal)$ and $\ScalarStepsize{2, \IndexDual}(\IndexDual = 1, \dots, \NumVarDual)$ are the stepsize parameters.
+
+
+Here, we introduce the convergence property of P-PDS.
+For the convergence analysis, we define the diagonal matrices of the stepsize parameters as follows:
+\begin{align}
+	\label{eq:StepsizeMatrices}
+	\MatrixStepsize{1} & = \diag(\ScalarStepsize{1, 1} \MatrixIdentity_{\DimVarPrimal{1}}, \ldots, \ScalarStepsize{1, \NumVarPrimal} \MatrixIdentity_{\DimVarPrimal{\NumVarPrimal}}), \notag \\
+	\MatrixStepsize{2} & = \diag(\ScalarStepsize{2, 1} \MatrixIdentity_{\DimVarDual{1}}, \ldots, \ScalarStepsize{2, \NumVarDual} \MatrixIdentity_{\DimVarDual{\NumVarDual}}),
+\end{align}
+where $\MatrixIdentity_{\DimVarPrimal{\IndexPrimal}} \in \RealSpace{\DimVarPrimal{\IndexPrimal} \times \DimVarPrimal{\IndexPrimal}}$ and $\MatrixIdentity_{\DimVarDual{\IndexDual}} \in \RealSpace{\DimVarDual{\IndexDual} \times \DimVarDual{\IndexDual}}$ are the identity matrices. We define the linear operator including $\LinOpPPDS{\IndexDual,\IndexPrimal}$ as
+\begin{equation}
+	\label{eq:LinearOperator}
+	\LinOpPPDS{} := 
+	\begin{bmatrix}
+		\LinOpPPDS{1, 1} & \cdots & \LinOpPPDS{1, \NumVarPrimal} \\
+		\vdots & \ddots & \vdots \\
+		\LinOpPPDS{\NumVarDual, 1} & \cdots & \LinOpPPDS{\NumVarDual, \NumVarPrimal}
+	\end{bmatrix}.
+\end{equation}
+Then, we state the convergence property of P-PDS.
+\begin{thm}
+	\label{thm:ConvergenceP-PDS}
+	[64, Theorem 1] Let $\MatrixStepsize{1}$ and $\MatrixStepsize{2}$ be symmetric and positive definite matrices satisfying
+	\begin{equation}
+		\label{ieq:ConvergenceCondition}
+		\OpNormSq{\MatrixStepsize{1}^{\frac{1}{2}} \circ \LinOpPPDS{} \circ \MatrixStepsize{2}^{\frac{1}{2}}} < 1.
+	\end{equation}
+	Then, the sequence $\lbrace \VarPrimal{1}^{(\IndexAlg)}, \ldots, \VarPrimal{\NumVarPrimal}^{(\IndexAlg)}, \VarDual{1}^{(\IndexAlg)}, \ldots, \VarDual{\NumVarDual}^{(\IndexAlg)} \rbrace$ generated by the procedure in \eqref{algo:P-PDS} converges to an optimal solution of Prob.~\eqref{prob:convex_optim_prob}.
+\end{thm}
+
+The standard PDS needs to adjust the appropriate stepsize parameters to satisfy the convergence conditions~\eqref{ieq:ConvergenceCondition}. On the other hand, P-PDS can automatically determine the stepsize parameters that guarantee convergence~\cite{Pock2011PPDS,Naganuma2023PPDS}. According to~\cite{Pock2011PPDS}, we summarize the stepsize design and their convergence property.
+\begin{lem}
+	\label{lem:StepsizeParameters}
+	[64, lemma 2] Let the diagonal matrices $\MatrixStepsize{1}, \MatrixStepsize{2}$ and the block matrix $\LinOpPPDS{}$ be set as Eq.~\eqref{eq:StepsizeMatrices} and \eqref{eq:LinearOperator}, respectively. In paticular,
+	\begin{align}
+	\label{eq:Preconditioners}
+	\ScalarStepsize{1, \IndexPrimal} & = \frac{1}{\sum_{\IndexDual = 1}^{\NumVarDual} \sum_{\IndexVarDual = 1}^{\DimVarDual{\IndexDual}} | \MatrixBrackets[\LinOpPPDS{\IndexDual, \IndexPrimal}]{\IndexVarDual, 1} |} , \: (\forall \IndexPrimal = 1, \ldots, \NumVarPrimal), \notag \\
+	\ScalarStepsize{2, \IndexDual} & = \frac{1}{\sum_{\IndexPrimal = 1}^{\NumVarPrimal} \sum_{\IndexVarPrimal = 1}^{\DimVarPrimal{\IndexPrimal}} | \MatrixBrackets[\LinOpPPDS{\IndexDual, \IndexPrimal}]{1, \IndexVarPrimal} |}, \: (\forall \IndexDual = 1, \ldots, \NumVarDual),
+	\end{align}
+	then the inquality in~\eqref{ieq:ConvergenceCondition} holds.
+\end{lem}

@@ -1,0 +1,199 @@
+\section{Proposed Method}
+\label{sec:proposed_method}
+\input{./src_fig/fig_Schematic_diagram}
+In the following, we first describe the design of the $\SSSTTV$ regularization function. Next, we consider a situation where an HS image is contaminated with mixed noise and introduce the corresponding observation model. Based on this model, we formulate an HS image denoising problem as a constrained convex optimization problem involving the $\SSSTTV$ regularization function. Finally, we derive an algorithm based on P-PDS to efficiently solve the optimization problem. A schematic diagram of $\SSSTTV$ is shown in Fig.~\ref{fig:schematic_diagram}.
+
+\subsection{Spatio-Spectral Structure Tensor Total Variation ($\SSSTTV$)}
+\label{subsec:S3TTV}
+Before describing the proposed regularization function, we introduce the notion of \textit{spatio-spectral structure tensor}\footnote{In the SSST paper~\cite{Kurihara2017SSST}, a structure tensor with the same name as the one we proposed (i.e., spatio-spectral structure tensor) is introduced. However, they are essentially different because the structure tensor in SSST consists of first-order differences, whereas that in our regularization function consists of second-order spatio-spectral differences.}.
+First, for a given HS image $\HSIClean$, we calculate the second-order spatial-spectral differences $\DiffOpVert \DiffOpBand \HSIClean$ and $\DiffOpHori \DiffOpBand \HSIClean$.
+Next, we extract \textit{small spectral blocks} by cropping the second-order spatio-spectral differences to the size $\NumBlockVert \times \NumBlockHori (\NumBlockVert << \NumVert, \NumBlockHori << \NumHori)$ for all bands\footnote{At the boundaries, the block cannot be cropped to an $\NumBlockVert \times \NumBlockHori \times \NumBand$ size. For example, when the difference is cropped to a $3 \times 3 \times \NumBand$ block at a center $(1, 1)$, a $2 \times 2 \times \NumBand$ block is created. In this case, we pad the lacking areas with pixels on the opposite boundaries to make the block $\NumBlockVert \times \NumBlockHori \times \NumBand$.}. Then, the $\IndexBlock$-th spatio-spectral structure tensor $\SmallBlock{\IndexBlock}$ is defined by vectorizing the second-order spatio-spectral differences in the $\IndexBlock$-th small spectral block by band and arranging them in parallel as follows:
+\begin{equation}
+	\begin{split}
+		\label{eq:SSST}
+		\SmallBlock{\IndexBlock} :=  
+		&\bigl( \lbrack \DiffOpVert \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)} \: 
+		\lbrack\DiffOpHori \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)} \\ 
+		& \: \cdots \lbrack \DiffOpVert \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)} \:
+		\lbrack\DiffOpHori \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)} 
+		\bigr) \in \RealSpace{\NumBlockVert \NumBlockHori \times 2\NumBand},
+	\end{split}
+\end{equation}
+where $\lbrack \DiffOpVert \DiffOpBand \HSIClean \rbrack_{\IndexBand}^{(\IndexBlock)} \in \RealSpace{\NumBlockVert \NumBlockHori}$ and $\lbrack \DiffOpHori \DiffOpBand \HSIClean \rbrack_{\IndexBand}^{(\IndexBlock)} \in \RealSpace{\NumBlockVert \NumBlockHori}$ are the second-order spatio-spectral differences of $\IndexBand$-th band in the $\IndexBlock$-th small spectral block. Since HS images have the strong correlation across all bands, $\lbrack \DiffOpVert \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)}, \ldots, \lbrack \DiffOpVert \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)}$ and $\lbrack \DiffOpHori \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)}, \ldots, \lbrack \DiffOpHori \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)}$ are similar vectors, respectively, i.e., the columns of $\SmallBlock{\IndexBlock}$ are approximately linearly dependent. The flow of constructing the spatio-spectral structure tensor is depicted in the middle right of Fig.~\ref{fig:schematic_diagram}.
+
+
+To capture the spatial piecewise-smoothness, the spatial similarity between adjacent bands, and the spectral correlation of an HS image, we propose a regularization function using the spatio-spectral structure tensors as follows:
+\begin{equation}
+	\label{eq:S3TTV_Lu}
+	\textstyle \SSSTTV (\HSIClean) := \sum_{\IndexBlock=1}^{\NumBlock} \| \SmallBlock{\IndexBlock} \|_{*},
+\end{equation}
+where $\NumBlock$ is the number of the extracted small spectral blocks.
+We call this function as \textit{Spatio-Spectral Structure Tensor Total Variation} ($\SSSTTV$).
+Here, $\SmallBlock{\IndexBlock}$ is represented with an operator $\ExpantionOp{\IndexBlock} \in \RealSpace{2 \NumBlockVert \NumBlockHori \NumBand \times 2 \NumVert \NumHori \NumBand}$ that extracts the $\IndexBlock$-th small spectral block as
+\begin{equation}
+	\label{eq:rewrite_Lu}
+	\SmallBlock{\IndexBlock}
+	= \ExpantionOp{\IndexBlock} \DiffOpSp \DiffOpBand \HSIClean.
+\end{equation}
+
+
+Minimizing the nuclear norms of the matrices $\SmallBlock{1}, \ldots, \SmallBlock{\NumBlock}$ allows for both the reduction of the energy of second-order differences and the enhancement of the spectral correlation of second-order differences. By reducing the energy of second-order differences instead of first-order differences, the proposed method promotes both the spatial piecewise-smoothness and the spatial similarity between adjacent bands while avoiding over-smoothing, as shown in~\cite{Aggarwal2016SSTV}. Furthermore, experimental analysis also indicates that second-order differences are more effective than first-order differences in distinguishing noise from HS images (see Sec.~\ref{subsec:Discussion}-4) on p. 13 for details). On the other hand, by enhancing the spectral correlation of second-order difference, the proposed method enhances the spectral correlation of HS images (see Appendix~A on p. 16 for proof). Therefore, by solving an optimization problem that incorporates $\SSSTTV$, our method simultaneously captures the above three natures.
+
+
+\subsection{HS Image Denoising Problem by $\SSSTTV$}
+\label{subsec:HSI_Denoising_Problem}
+An observed HS image $\HSIObsv \in \RealSpace{\NumAll}$ contaminated by mixed noise is modeled by
+\begin{equation}
+	\label{eq:Obsevation_model}
+	\HSIObsv = \bar{\HSIClean} + \bar{\NoiseSparse} + \bar{\NoiseStripe} + \NoiseGauss,
+\end{equation}
+where $\bar{\HSIClean}$ is a clean HS image, $\bar{\NoiseSparse}$ is sparse noise, $\bar{\NoiseStripe}$ is stripe noise, and $\NoiseGauss$ is Gaussian noise, respectively.
+Modeling different types of noise as separate components is an effective approach for mixed noise removal in HS images~\cite{Zhang2022Double}.
+
+Based on the above observation model, we formulate an HS image denoising problem involving $\SSSTTV$ as a constrained convex optimization problem with the following form:
+\begin{equation}
+	\label{prob:S3TTV_denoising}
+	\min_{\HSIClean, \NoiseSparse, \NoiseStripe \in \RealSpace{\NumAll}} \SSSTTV(\HSIClean) \: \mathrm{s.t.} \:
+	\begin{cases} 
+		\NoiseSparse \in \BallSparse, \\ 
+		\NoiseStripe \in \BallStripe, \\
+		\DiffOpVert \NoiseStripe = \mathbf{0}, \\
+		\HSIClean + \NoiseSparse + \NoiseStripe \in \BallFidel, \\  
+		\HSIClean \in \SetRange,
+	\end{cases}
+\end{equation}
+where
+\begin{align}
+	\label{eq:constraint_sparse}
+	&\BallSparse := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne\|_{1} \leq \RadiusSparse \},  \\
+	\label{eq:constraint_stripe}
+	&\BallStripe := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne\|_{1} \leq \RadiusStripe \},  \\
+	\label{eq:constraint_fidel}
+	&\BallFidel := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne - \HSIObsv\|_2 \leq \RadiusFidel \},  \\
+	\label{eq:constraint_box}
+	&\SetRange := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\MinRange \leq \ElementOne{\IndexOne} \leq \MaxRange  \: (\IndexOne = 1, \dots , \NumAll) \}.
+\end{align}
+
+The first constraint characterizes sparse noise $\NoiseSparse$ with the zero-centered $\ell_1$-ball of the radius $\RadiusSparse > 0$. The second constraint controls the intensity of stripe noise $\NoiseStripe$ and the third constraint captures the vertical flatness property by imposing zero to the vertical gradient of $\NoiseStripe$. These constraints effectively characterize stripe noise~\cite{Naganuma2022Destriping}. The fourth constraint serves as data-fidelity with the $\HSIObsv$-centered $\ell_2$-ball of the radius $\RadiusFidel > 0$. The fifth constraint is a box constraint with $\MinRange < \MaxRange$ which represents the dynamic range of $\HSIClean$. For normalized HS images, we can set $\MinRange = 0$ and $\MaxRange = 1$.
+
+
+Using the first, second, and fourth constraints instead of adding terms to the objective function makes it much easier to adjust the parameters $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$. This is because by expressing multiple terms as constraints, rather than adding them to the objective function, the hyperparameters associated with each term are converted to be independent of each other, and appropriate parameters can be determined without interdependence. Such advantage has been addressed, e.g., in~\cite{Afonso2011Constraint, Chierchia2015Constraint, Ono2015Constraint, Ono2017Constraint, Ono2019Constraint}.
+
+
+\subsection{Optimization}
+\label{subsec:Optim}
+To solving Prob.~\eqref{prob:S3TTV_denoising} by an efficient algorithm based on P-PDS~\cite{Pock2011PPDS}, we need to reformulate it into the P-PDS applicable form~\eqref{prob:convex_optim_prob}. Using the indicator functions $\FuncIndicator{\SetZero}$, $\FuncIndicator{\BallFidel}$, $\FuncIndicator{\BallStripe}$, $\FuncIndicator{\BallSparse}$, and $\FuncIndicator{\SetRange}$, we rewrite Prob.~\eqref{prob:S3TTV_denoising} into an equivalent form:
+\begin{align}
+	\label{prob:denoising2PPDS}
+	\min_{
+		\substack{
+			\HSIClean, \NoiseSparse, \NoiseStripe\\ 
+			\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, 
+			\VarDual{2}, \VarDual{3}}} \:
+	& \sum_{\IndexBlock=1}^{\NumBlock} \| 
+	\VarDualMatrix{1, \IndexBlock} \|_{*}
+	+ \FuncIndicator{\SetZero} (\VarDual{2})
+	+ \FuncIndicator{\BallFidel} (\VarDual{3}) \nonumber \\
+	& + \FuncIndicator{\BallSparse} (\NoiseSparse) 
+	+ \FuncIndicator{\BallStripe} (\NoiseStripe)
+	+ \FuncIndicator{\SetRange} (\HSIClean),  \nonumber \\
+	& \mathrm{s.t.} \:
+	\begin{cases} 
+		\VarDualMatrix{1,1} = \ExpantionOp{1} \DiffOpSp \DiffOpBand \HSIClean, \\ 
+		\vdots \\ 
+		\VarDualMatrix{1,\NumBlock} = \ExpantionOp{\NumBlock} \DiffOpSp \DiffOpBand \HSIClean, \\ 
+		\VarDual{2} = \DiffOpVert \NoiseStripe, \\
+		\VarDual{3} = \HSIClean + \NoiseSparse + \NoiseStripe. 
+	\end{cases}
+\end{align}
+Let $\HSIClean$, $\NoiseSparse$, and $\NoiseStripe$ be the primal variables and $\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, \VarDual{2}, \VarDual{3}$ be the dual variables. The operators $\ExpantionOp{1}, \ldots, \ExpantionOp{\NumBlock}, \DiffOpSp, \DiffOpBand$, and $\DiffOpVert$ are linear operators. The indicator functions $\FuncIndicator{\SetZero}$, $\FuncIndicator{\BallFidel}$, $\FuncIndicator{\BallStripe}$, $\FuncIndicator{\BallSparse}$, and $\FuncIndicator{\SetRange}$ and the nuclear norm $\| \cdot \|_{*}$ are proper lower semi-continuous convex. Then, by defining,
+\begin{align}
+	\label{eq:FuncMapping}
+	& \FuncPrimal{1} (\HSIClean) := \FuncIndicator{\SetRange} (\HSIClean), \nonumber \\
+	& \FuncPrimal{2} (\NoiseSparse) := \FuncIndicator{\BallSparse} (\NoiseSparse), \nonumber \\
+	& \FuncPrimal{3} (\NoiseStripe) := \FuncIndicator{\BallStripe} (\NoiseStripe), \nonumber \\
+	& \FuncDual{1} (\VarDualMatrix{1, 1}) := \| \VarDualMatrix{1, 1} \|_{*}, \ldots, \FuncDual{\NumBlock}(\VarDualMatrix{1, \NumBlock}) := \| \VarDualMatrix{1, \NumBlock} \|_{*}, \nonumber \\
+	& \FuncDual{\NumBlock + 1} (\VarDual{2}) := \FuncIndicator{\SetZero} (\VarDual{2}), \nonumber \\
+	& \FuncDual{\NumBlock + 2} (\VarDual{3}) := \FuncIndicator{\BallFidel} (\VarDual{3}),
+\end{align}
+Prob.~\eqref{prob:denoising2PPDS} is reduced to Prob.~\eqref{prob:convex_optim_prob}. 
+Therefore, P-PDS is applicable to Prob.~\eqref{prob:denoising2PPDS}.
+
+\input{./src_fig/algo_PPDS}
+
+
+
+We show the detailed algorithm in Alg.~1 based on~\eqref{algo:P-PDS}.
+The proximity operators of $\FuncIndicator{\SetRange}$, $\FuncIndicator{\SetZero}$, and  $\FuncIndicator{\BallFidel}$ are calculated by
+\begin{align}
+	\label{eq:prox_box_constraint}
+	\lbrack \prox_{\ParamStepsize{} \FuncIndicator{\SetRange}} (\VarOne) \rbrack_{i} 
+	&= \lbrack \Projection{\SetRange} (\VarOne) \rbrack_{i} =
+	\begin{cases} 
+		\MinRange, & \text{if } \ElementOne{i} < \MinRange, \\ 
+		\MaxRange, & \text{if } \ElementOne{i}> \MaxRange, \\ 
+		\ElementOne{i}, & \text{otherwise,} 
+	\end{cases} \\
+	\label{eq:prox_zeroset}
+	\prox_{\gamma \FuncIndicator{\SetZero}}(\VarOne) &= \mathbf{0}, \\
+	\label{eq:prox_l2ball_constraint}
+	\prox_{\gamma \FuncIndicator{\BallFidel}}(\VarOne) &= \Projection{\BallFidel} (\VarOne) = 
+	\begin{cases}
+		\VarOne, & \text{if } \VarOne \in \BallFidel, \\ 
+		\HSIObsv + \frac{\varepsilon (\VarOne - \HSIObsv)}{\| \VarOne - \HSIObsv \|_2}, & \text{otherwise.}
+	\end{cases}
+\end{align}
+The proximity operators of $\FuncIndicator{\BallSparse} (\NoiseSparse)$ and $\FuncIndicator{\BallStripe} (\NoiseStripe)$ can be efficiently computed by a fast $\ell_{1}$-ball projection algorithm~\cite{Condat2016L1ball}.
+The proximity operator for the nuclear norm $\| \cdot \|_{*}$ is calculated by
+\begin{align}
+	\label{eq:prox_nuclear_norm}
+	& \prox_{\ParamStepsize{} \| \cdot \|_{*}} (\MatrixOne) 
+	= \LeftSingularMatrix \SingularMatrix{\ParamStepsize{}} \RightSingularMatrixT, \notag \\
+	& \SingularMatrix{\ParamStepsize{}}
+	= \diag \bigl( \max \{ \SingularValue{1} - \ParamStepsize{}, 0\}, \cdots, \max \{ \SingularValue{\NumSingularValue} - \ParamStepsize{}, 0 \} \bigr),
+\end{align}
+where $\NumSingularValue$ is the number of nonzero singular values, i.e., $\min \{\NumBlockVert \NumBlockHori, 2 \NumBand \}$, and the singular value decomposition of $\MatrixOne$ is $\LeftSingularMatrix \diag \left( \SingularValue{1}, \ldots, \SingularValue{\NumSingularValue} \right) \RightSingularMatrixT$.
+
+Based on Eq.~\eqref{eq:Preconditioners}, the stepsize parameters $\ParamStepsize{\HSIClean}$, $\ParamStepsize{\NoiseSparse}$, $\ParamStepsize{\NoiseStripe}$, $\ParamStepsize{\VarDualMatrix{1, 1}}$,~\ldots,~$\ParamStepsize{\VarDualMatrix{1, \NumBlock}}$, $\ParamStepsize{\VarDual{2}}$, and $\ParamStepsize{\VarDual{3}}$ are given as
+\begin{align}
+	\label{eq:stepsize_denoising}
+	& \ParamStepsize{\HSIClean} = \frac{1}{8 \NumBlock + 1}, \: \ParamStepsize{\NoiseSparse} = 1, \: \ParamStepsize{\NoiseStripe} = \frac{1}{3}, \nonumber \\
+	& \ParamStepsize{\VarDualMatrix{1, 1}} = \ldots= \ParamStepsize{\VarDualMatrix{1, \NumBlock}} = \frac{1}{4}, \nonumber \\
+	& \ParamStepsize{\VarDual{2}} = \frac{1}{2}, \: \ParamStepsize{\VarDual{3}} = \frac{1}{3}.
+\end{align}
+From Lemma~\ref{lem:StepsizeParameters}, the above stepsizes satisfy the inequality~\eqref{ieq:ConvergenceCondition}, and the sequence $\{\HSIClean^{(t)}, \NoiseSparse^{(t)}, \NoiseStripe^{(t)}, \VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, \VarDual{2}, \VarDual{3} \}$ generated by Alg.~1 converges to an optimal solution of Prob.~\eqref{prob:denoising2PPDS}.
+
+
+\subsection{Computational Complexity}
+\label{subsec:Comp_Comp}
+Table~\ref{tab:ComputationalComplexity} shows the computational complexities of each operator in the proposed algorithm. Based on Table~\ref{tab:ComputationalComplexity}, the computational complexities of each step in Alg.~1 are given as follows:
+\begin{itemize}
+	\item Step 2: $\mathcal{O} (\NumBlock \NumBlockVert \NumBlockHori \NumBand)$,
+	\item Steps 3 and 4: $\mathcal{O} (\NumAll \log{\NumAll})$,
+	\item Steps 5, 6, 7, 9, 12, 13, and 14: $\mathcal{O} (\NumAll)$,
+	\item Step 10: $\mathcal{O} (\NumBlockVert \NumBlockHori \NumBand \min({\NumBlockVert \NumBlockHori, 2 \NumBand}))$.
+\end{itemize}
+Thus, the computational complexity for each iteration of Alg.~1 is $\mathcal{O} (\NumBlock \NumBlockVert \NumBlockHori \NumBand \min({\NumBlockVert \NumBlockHori, 2 \NumBand}))$.
+\input{./src_fig/tab_ComputationComplexity}
+
+
+
+\subsection{Empirical Validation of the $\SSSTTV$ Design}
+\label{subsec:DataDist}
+In this section, we empirically verify the validity of the proposed $\SSSTTV$ design in Eq.~\eqref{eq:S3TTV_Lu} from the perspective of data distribution. Specifically, we plot the distributions of the singular values of the spatio-spectral structure tensors $\SmallBlock{\IndexBlock}$ of HS images. Fig.~\ref{fig:data_dist} shows the normalized histograms of the singular values computed from all spatio-spectral structure tensors extracted from each of the three HS images used in our experiments: \textit{Jasper Ridge}, \textit{Pavia University}, and \textit{Beltsville}. Each histogram is overlaid with a fitted exponential distribution, which corresponds to the positive half of the Laplacian distribution. The exponential distribution is defined as
+\begin{equation}
+	\label{eq:ExponentialDistribution}
+	p(x; \lambda) = \frac{1}{\lambda} \exp\left(-\frac{x}{\lambda} \right), \quad (x \geq 0),
+\end{equation}
+where $\lambda$ is the scale parameter, which is set as the mean of the singular values. As shown in Fig.~\ref{fig:data_dist}, the singular value distributions closely match the exponential distributions. This indicates that minimizing $\ell_{1}$-norm the singular values of the spatio-spectral structure tensors is reasonable to make observed noisy images closer to HS images of interest. Therefore, the design of $\SSSTTV$ is justified from the perspective of the data distribution.
+
+\input{./src_fig/fig_data_dist.tex}
+
+
+\input{./src_fig/tab_results_mpsnr_woboundary}
+\input{./src_fig/tab_results_mssim_woboundary}
+

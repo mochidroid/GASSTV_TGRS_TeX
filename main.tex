@@ -1,0 +1,142 @@
+\documentclass[10pt,journal]{IEEEtran}
+
+
+\input{./src/0_packages}
+\input{./src/0_defs}
+
+
+
+
+\begin{document}
+\bstctlcite{IEEEexample:BSTcontrol}
+
+\title{Spatio-Spectral Structure Tensor Total Variation for Hyperspectral Image Denoising and Destriping}
+
+% \author{Shingo Takemoto and Shunsuke Ono\thanks{This work was supported in part by JST PRESTO under Grant JPMJPR21C4, and in part by JSPS KAKENHI under Grant 22H03610, 22H00512, 20H02145, and 18H05413.}}
+\author{Shingo~Takemoto,~\IEEEmembership{Student~Member,~IEEE,}
+        Kazuki~Naganuma, Shunsuke~Ono,~\IEEEmembership{Member,~IEEE,}
+% \thanks{Manuscript received XXX, XXX; revised XXX XXX, XXX.}%
+\thanks{S. Takemoto is with the Department of Computer Science, Institute of Science Tokyo, Yokohama, 226-8501, Japan (e-mail: takemoto.s.e908@m.isct.ac.jp).}
+\thanks{K. Naganuma is with the Institute of Engineering of Tokyo University of Agriculture and Technology, Tokyo, 184-8588, Japan (e-mail: k-naganuma@go.tuat.ac.jp).}
+\thanks{S. Ono is with the Department of Computer Science, Institute of Science Tokyo, Yokohama, 226-8501, Japan (e-mail: ono.s.5af2@m.isct.ac.jp).}% <-this % stops a space
+\thanks{This work was supported in part by Grant-in-Aid for JSPS Fellows Grant Number JP24KJ1068 and 23KJ0912, in part by JSPS KAKENHI under Grant 22H03610, 22H00512, 23H01415, 23K17461, 24K03119, and 24K22291, and in part by JST PRESTO under Grant JPMJPR21C4, JST AdCORP under Grant JPMJKB2307, and JST ACT-X Grant JPMJAX23CJ.}}
+
+% \author{IEEE Publication Technology,~\IEEEmembership{Staff,~IEEE,}
+%         % <-this % stops a space
+% \thanks{This paper was produced by the IEEE Publication Technology Group. They are in Piscataway, NJ.}% <-this % stops a space
+% \thanks{Manuscript received April 19, 2021; revised August 16, 2021.}}
+
+% The paper headers
+\markboth{Journal of \LaTeX\ Class Files,~Vol.~14, No.~8, August~2021}%
+{Shell \MakeLowercase{\textit{et al.}}: A Sample Article Using IEEEtran.cls for IEEE Journals}
+
+% \IEEEpubid{0000--0000/00\$00.00~\copyright~2021 IEEE}
+% Remember, if you use this you must call \IEEEpubidadjcol in the second
+% column for its text to clear the IEEEpubid mark.
+
+\maketitle
+
+\input{./src/0_Abstract}
+
+\begin{IEEEkeywords}
+Hyperspectral image, denoising, destriping, spatio-spectral regularization, total variation, structure tensor
+\end{IEEEkeywords}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{./src/1_Introduction}
+\input{./src/2_Preliminaries}
+\input{./src/3_ProposedMethod}
+\input{./src/4_Experiments}
+
+\input{./src/5_Conclusion}
+
+\input{./src/6_Appendix}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+% \section*{Acknowledgments}
+% This should be a simple paragraph before the References to thank those individuals and institutions who have supported your work on this article.
+
+
+
+% {\appendix[Proof of the Zonklar Equations]
+% Use $\backslash${\tt{appendix}} if you have a single appendix:
+% Do not use $\backslash${\tt{section}} anymore after $\backslash${\tt{appendix}}, only $\backslash${\tt{section*}}.
+% If you have multiple appendixes use $\backslash${\tt{appendices}} then use $\backslash${\tt{section}} to start each appendix.
+% You must declare a $\backslash${\tt{section}} before using any $\backslash${\tt{subsection}} or using $\backslash${\tt{label}} ($\backslash${\tt{appendices}} by itself
+%  starts a section numbered zero.)}
+
+
+
+%{\appendices
+%\section*{Proof of the First Zonklar Equation}
+%Appendix one text goes here.
+% You can choose not to have a title for an appendix if you want by leaving the argument blank
+%\section*{Proof of the Second Zonklar Equation}
+%Appendix two text goes here.}
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{src/refs}
+
+
+% \newpage
+
+% \section{Biography Section}
+% If you have an EPS/PDF photo (graphicx package needed), extra braces are
+%  needed around the contents of the optional argument to biography to prevent
+%  the LaTeX parser from getting confused when it sees the complicated
+%  $\backslash${\tt{includegraphics}} command within an optional argument. (You can create
+%  your own custom macro containing the $\backslash${\tt{includegraphics}} command to make things
+%  simpler here.)
+ 
+% \vspace{11pt}
+
+% \bf{If you include a photo:}\vspace{-33pt}
+% \begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig1}}]{Michael Shell}
+% Use $\backslash${\tt{begin\{IEEEbiography\}}} and then for the 1st argument use $\backslash${\tt{includegraphics}} to declare and link the author photo.
+% Use the author name as the 3rd argument followed by the biography text.
+% \end{IEEEbiography}
+
+\vspace{11pt}
+
+% \bf{If you will not include a photo:}\vspace{-33pt}
+% \begin{IEEEbiographynophoto}{John Doe}
+% Use $\backslash${\tt{begin\{IEEEbiographynophoto\}}} and the author name as the argument followed by the biography text.
+% \end{IEEEbiographynophoto}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./fig_supplement/ST_prof_4_5.JPG}}]{Shingo Takemoto}
+    (S’22) received a B.E. degree and M.E. degree in Information and Computer Sciences in 2021 from Sophia University and in 2023 from Institute of Science Tokyo (formerly Tokyo Institute of Technology), respectively. He is currently pursuing a Ph.D. degree at the Department of Computer Science in the Institute of Science Tokyo. Since April 2024, he has been a Research Fellow (DC2) of Japan Society for the Promotion of Science (JSPS). His current research interests are in signal and image processing and optimization theory. Mr. Takemoto received the Student Award from IEEE SPS Tokyo Joint Chapter in 2022.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./fig_supplement/naganuma.jpg}}]{Kazuki Naganuma} (S’21) received a B.E. degree in 2020 from the Kanagawa Institute of Technology and M.E. and Ph.D. degrees in Information and Computer Sciences 2022 and 2024 from the Tokyo Institute of Technology, respectively.
+He is an assistant professor at the Institute of Engineering of Tokyo University of Agriculture and Technology.
+From April 2023 to March 2025, he was a Research Fellow (DC2) of the Japan Society for the Promotion of Science (JSPS). From October 2023 and April 2025 to present, He is a Research Fellow (PD) of JSPS and a Researcher of ACT-X of the Japan Science and Technology Corporation (JST), Tokyo, Japan.
+His current research interests are in signal and image processing and optimization theory.
+Dr. Naganuma received the Student Conference Paper Award from IEEE SPS Japan Chapter in 2022, the 38th TELECOM System Technology Student Award from the Telecommunications Advancement Foundation, and the Best Paper Award in APSIPA ASC 2024.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./fig_supplement/ShunsukeOno_Bio_Front.jpg}}]{Shunsuke Ono}
+(S’11–M’15–SM'23) received a B.E. degree in Computer Science in 2010 and M.E. and Ph.D. degrees in Communications and Computer Engineering in 2012 and 2014 from the Tokyo Institute of Technology, respectively. From 2012 to 2014, he was a Research Fellow (DC1) of the Japan Society for the Promotion of Science (JSPS). He was an Assistant, then an Associate Professor with Tokyo Institute of Technology (TokyoTech), Tokyo, Japan, from 2014 to 2024. From 2016 to 2020, he was a Researcher of Precursory Research for Embryonic Science and Technology (PRESTO), Japan Science and Technology Agency (JST), Tokyo, Japan. Currently, he is an Associate Professor with Institute of Science Tokyo (Science Tokyo), Tokyo, Japan. His research interests include signal processing, image analysis, optimization, remote sensing, and measurement informatics. He has served as an Associate Editor for IEEE TRANSACTIONS ON SIGNAL AND INFORMATION PROCESSING OVER NETWORKS (2019--2024). Dr. Ono was a recipient of the Young Researchers’ Award and the Excellent Paper Award from the IEICE in 2013 and 2014, respectively, the Outstanding Student Journal Paper Award and the Young Author Best Paper Award from the IEEE SPS Japan Chapter in 2014 and 2020, respectively, and the Best Paper Award in APSIPA ASC 2024. He also received the Funai Research Award in 2017, the Ando Incentive Prize in 2021, the MEXT Young Scientists’ Award in 2022, and the IEEE SPS Outstanding Editorial Board Member Award in 2023. 
+\end{IEEEbiography}
+
+
+
+
+\vfill
+
+\end{document}
+
+

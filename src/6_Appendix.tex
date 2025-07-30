@@ -1,0 +1,78 @@
+%\setcounter{subsection}{0}
+\section*{Appendix}
+\subsection*{A. Enhancing Spectral Correlation of differences in HS Images}
+To show that improving the spectral correlation of second-order difference enhances the spectral correlation of HS images, we have to show that $\MatHSIClean = \lbrack\HSIClean_{1}^{(\IndexBlock)}, \ldots, \HSIClean_{\NumBand}^{(\IndexBlock)}\rbrack \in \RealSpace{\NumBlockVert \NumBlockHori \times \NumBand}$ is low-rank if $\SmallBlock{\IndexBlock}$ is low-rank. First, if $\SmallBlock{\IndexBlock}$ is low-rank, then $\begin{pmatrix} \lbrack  \DiffOpVert \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)}, \ldots, \lbrack  \DiffOpVert \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)}\end{pmatrix}$ and $\begin{pmatrix} \lbrack  \DiffOpHori \DiffOpBand \HSIClean \rbrack_{1}^{(\IndexBlock)}, \ldots, \lbrack  \DiffOpHori \DiffOpBand \HSIClean \rbrack_{\NumBand}^{(\IndexBlock)}\end{pmatrix}$ are also low-rank. By referring to~\cite{Aggarwal2016SSTV}, we can rewrite them into 
+$\DiffOpVert^{\prime} \MatHSIClean \DiffOpBand^{\prime}$ and $\DiffOpHori^{\prime} \MatHSIClean \DiffOpBand^{\prime}$, where $\DiffOpVert^{\prime}$
+, $\DiffOpHori^{\prime}$, and $\DiffOpBand^{\prime}$ are the difference operators for the matrix forms of HS images in vertical, horizontal, spectral directions, respectively.
+Here, from the the Sylvester’s rank inequality~\cite{Matsaglia1974Equalities}, we can obtain 
+\begin{align}
+	\rank(\MatHSIClean) \leq 
+	& \rank(\DiffOpVert^{\prime} \MatHSIClean \DiffOpBand^{\prime}) + \NumBlockVert \NumBlockHori + \NumBand 
+	\nonumber \\
+	& - \rank(\DiffOpVert^{\prime}) - \rank(\DiffOpBand^{\prime}),
+	\nonumber \\
+	\rank(\MatHSIClean) \leq 
+	& \rank(\DiffOpHori^{\prime} \MatHSIClean \DiffOpBand^{\prime}) + \NumBlockVert \NumBlockHori + \NumBand 
+	\nonumber \\
+	& - \rank(\DiffOpHori^{\prime}) - \rank(\DiffOpBand^{\prime}).
+\end{align}
+Since $\rank(\DiffOpVert^{\prime}) = \NumBlockVert \NumBlockHori - 1$, $\rank(\DiffOpHori^{\prime}) = \NumBlockVert \NumBlockHori - 1$, and $\rank(\DiffOpBand^{\prime}) = \NumBand-1$, we have
+\begin{align}
+	& \rank(\MatHSIClean) <= \rank(\DiffOpVert^{\prime} \MatHSIClean \DiffOpBand^{\prime}) + 2,
+	\nonumber \\
+	& \rank(\MatHSIClean) <= \rank(\DiffOpHori^{\prime} \MatHSIClean \DiffOpBand^{\prime}) + 2.
+\end{align}
+These inequalities indicate that if $\DiffOpVert^{\prime} \MatHSIClean \DiffOpBand^{\prime}$ and $\DiffOpHori^{\prime} \MatHSIClean \DiffOpBand^{\prime}$ are low rank, $\MatHSIClean$ is also low rank.
+Therefore, minimizing the nuclear norms of $\SmallBlock{1}, \ldots, \SmallBlock{\NumBlock}$ enhances the spectral correlation of HS images.
+
+
+% \subsection*{\revise{B. Theoretical Convergence Analysis}}
+% \label{subsec:Convergence}
+% \revise{To provide a theoretical guarantee for the convergence of Alg.~1, we confirm that the proposed optimization problem~\eqref{prob:denoising2PPDS} fits into the P-PDS applicable form~\eqref{prob:convex_optim_prob}.
+% The proposed optimization problem is restated below for clarity:
+% \begin{align}
+% 	\min_{
+% 		\substack{
+% 			\HSIClean, \NoiseSparse, \NoiseStripe\\ 
+% 			\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, 
+% 			\VarDual{2}, \VarDual{3}}} \:
+% 	& \sum_{\IndexBlock=1}^{\NumBlock} \| 
+% 	\VarDualMatrix{1, \IndexBlock} \|_{*}
+% 	+ \FuncIndicator{\SetZero} (\VarDual{2})
+% 	+ \FuncIndicator{\BallFidel} (\VarDual{3}) \nonumber \\
+% 	& + \FuncIndicator{\BallSparse} (\NoiseSparse) 
+% 	+ \FuncIndicator{\BallStripe} (\NoiseStripe)
+% 	+ \FuncIndicator{\SetRange} (\HSIClean),  \nonumber \\
+% 	& \mathrm{s.t.} \:
+% 	\begin{cases} 
+% 		\VarDualMatrix{1,1} = \ExpantionOp{1} \DiffOpSp \DiffOpBand \HSIClean, \\ 
+% 		\vdots \\ 
+% 		\VarDualMatrix{1,\NumBlock} = \ExpantionOp{\NumBlock} \DiffOpSp \DiffOpBand \HSIClean, \\ 
+% 		\VarDual{2} = \DiffOpVert \NoiseStripe, \\
+% 		\VarDual{3} = \HSIClean + \NoiseSparse + \NoiseStripe. 
+% 	\end{cases}
+% 	\tag{\ref{prob:denoising2PPDS}}
+% \end{align}
+% }
+
+% \revise{The variables $\HSIClean$, $\NoiseSparse$, and $\NoiseStripe$ can be interpreted as the primal variables, and $\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, \VarDual{2}$, and $\VarDual{3}$ as the dual variables.
+% The operators $\ExpantionOp{1}, \ldots, \ExpantionOp{\NumBlock}, \DiffOpSp, \DiffOpBand$, and $\DiffOpVert$ are linear operators.
+% The sets $\SetRange$, $\BallSparse$, $\BallStripe$, and $\BallFidel$ are nonempty and closed convex, so the indicator functions $\FuncIndicator{\SetRange}$, $\FuncIndicator{\BallSparse}$, $\FuncIndicator{\BallStripe}$, and $\FuncIndicator{\BallFidel}$ are proper lower semi-continuous convex.
+% The nuclear norm $\| \cdot \|_{*}$ using the $\SSSTTV$ term is also a proper lower semi-continuous convex function.
+% Then, by defining, (as previously introduced in Sec.~\ref{subsec:Optim})
+% \begin{align}
+% 	& \FuncPrimal{1} (\HSIClean) := \FuncIndicator{\SetRange} (\HSIClean), \nonumber \\
+% 	& \FuncPrimal{2} (\NoiseSparse) := \FuncIndicator{\BallSparse} (\NoiseSparse), \nonumber \\
+% 	& \FuncPrimal{3} (\NoiseStripe) := \FuncIndicator{\BallStripe} (\NoiseStripe), \nonumber \\
+% 	& \FuncDual{1} (\VarDualMatrix{1, 1}) := \| \VarDualMatrix{1, 1} \|_{*}, \ldots, \FuncDual{\NumBlock}(\VarDualMatrix{1, \NumBlock}) := \| \VarDualMatrix{1, \NumBlock} \|_{*}, \nonumber \\
+% 	& \FuncDual{\NumBlock + 1} (\VarDual{2}) := \FuncIndicator{\SetZero} (\VarDual{2}), \nonumber \\
+% 	& \FuncDual{\NumBlock + 2} (\VarDual{3}) := \FuncIndicator{\BallFidel} (\VarDual{3}),
+% 	\tag{\ref{eq:FuncMapping}}
+% \end{align}
+% we can show that Prob.~\eqref{prob:denoising2PPDS} matches the P-PDS-applicable form~\eqref{prob:convex_optim_prob}.
+% Therefore, if the stepsize parameters satisfy the convergence condition in~[52,~Theorem~1], the variables $\HSIClean$, $\NoiseSparse$, $\NoiseStripe$, $\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, \VarDual{2}$, and $\VarDual{3}$ generated by Alg.~1 based on P-PDS are guaranteed to converge to global optimal solutions of Prob.~\eqref{prob:denoising2PPDS}.
+% Moreover, derived from the automatic determination manner of P-PDS in Eq.~\eqref{eq:Preconditioners}, the stepsize parameters in Eq.~\eqref{eq:stepsize_denoising} are guaranteed to satisfy the required convergence condition.
+% In addition, we empirically confirm the convergence of the proposed algorithm in Sec.~\ref{subsec:ConvAnal}.
+% }
+
+% Therefore, if the stepsize parameters satisfy the convergence condition in~[52,~Theorem~1], Alg.~1 based on P-PDS is guaranteed to converge $\HSIClean$, $\NoiseSparse$, $\NoiseStripe$, $\VarDualMatrix{1,1}, \ldots , \VarDualMatrix{1,\NumBlock}, \VarDual{2}$, and $\VarDual{3}$ to global optimal solutions of Prob.~\eqref{prob:denoising2PPDS}.
