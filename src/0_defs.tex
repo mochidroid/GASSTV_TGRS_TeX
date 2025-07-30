@@ -31,7 +31,6 @@
 \def\OpNorm#1{\| #1 \|_{\mathrm{op}}}
 \def\OpNormSq#1{\| #1 \|_{\mathrm{op}}^{2}}
 
-\def\SSSTTV{{\text{S}_{3} \text{TTV}}}
 \def\llHTV{{l_{0}\text{-}l_{1}\text{HTV}}}
 
 \def\RealSpace#1{\mathbb{R}^{#1}}
@@ -137,28 +136,67 @@
 \def\ConstantColumn#1{c_{2, #1}}
 
 
-% 3.1 S3TTV
-\def\IndexBand{\IndexPrimal}
+% 2.5 Spatial Graph by GSSTV
+\def\GuideImage{\HSIObsv{'}}
+\def\GuideImageVec{v{'}}
+\def\IndexVert{i}
+\def\IndexHori{j}
+\def\IndexBand{c}
 
-\def\DiffOpVert{\mathbf{D}_{v}}
-\def\DiffOpHori{\mathbf{D}_{h}}
-\def\DiffOpBand{\mathbf{D}_{s}}
-\def\DiffOpSp{\mathbf{D}}
-
-\def\DiffOpVertT{\mathbf{D}_{v}^{\top}}
-\def\DiffOpHoriT{\mathbf{D}_{h}^{\top}}
-\def\DiffOpBandT{\mathbf{D}_{s}^{\top}}
-\def\DiffOpSpT{\mathbf{D}^{\top}}
-
-\def\ExpantionOp#1{\mathbf{P}_{#1}}
+\def\SpatialGraph{\mathcal{G}_{\text{sp}}}
+\def\SpatialGraphEdgeSet{\mathcal{E}_{\text{sp}}}
+\def\SpatialGraphWeightMat{\mathbf{W}_{\text{sp}}}
+\def\IndexEdgeOne{p}
+\def\IndexEdgeTwo{q}
+\def\SpatialGraphEdge{e_{\IndexEdgeOne, \IndexEdgeTwo}}
+\def\NumSpatialGraphEdge{|\SpatialGraphEdgeSet|}
+\def\SpatialGraphWeight{w_{\SpatialGraphEdge}}
+\def\ParamSpatialGraph{\sigma_{\text{sp}}}
 
 
+\def\SpatialGraphIncidenceMat{\mathbf{D}}
+\def\DiffOpGraphSp{\mathbf{D}_{\SpatialGraph}}
 
 
-\def\LeftSingularMatrix{\mathbf{U}}
-\def\SingularMatrix#1{\mathbf{\Sigma}_{#1}}
-\def\RightSingularMatrixT{\mathbf{V}^{\top}}
-\def\SingularValue#1{\rho_{#1}}
+
+% 3.1 Weighted Spectral Difference Operator based on Spectral Graph
+\def\IndexSegment{k}
+\def\NumSegment{K}
+\def\Segment#1{\mathcal{S}_{#1}}
+\def\LabelMap{\mathbf{L}}
+\def\SpectrumRep#1{\mathbf{r}_{#1}}
+
+\def\SpectralGraph{\mathcal{G}_{\lambda}}
+\def\SpectralGraphNode{\mathbf{x}_{\lambda}}
+\def\SpectralGraphEdgeSet{\mathcal{E}_{\lambda}}
+\def\SpectralGraphWeightMat{\mathbf{W}_{\lambda}}
+\def\SpectralGraphWeight#1{w_{#1}}
+\def\IndexWeight{i}
+\def\ParamSpectralGraph{\sigma_{\lambda}}
+
+\def\DiffOpGraphBand{\mathbf{D}_{\SpectralGraph}}
+
+
+% 3.2 GASSTV
+\def\GASSTV{\text{GASSTV}}
+
+\def\DiffOpVert{\mathbf{D}_{\text{v}}}
+\def\DiffOpHori{\mathbf{D}_{\text{h}}}
+\def\DiffOpBand{\mathbf{D}_{\lambda}}
+\def\DiffOpSp{\mathbf{D}_{\text{vh}}}
+
+\def\DiffOpVertT{\DiffOpVert^{\top}}
+\def\DiffOpHoriT{\DiffOpHori^{\top}}
+\def\DiffOpBandT{\DiffOpBand^{\top}}
+\def\DiffOpSpT{\DiffOpSp^{\top}}
+
+
+\def\DiffOpGraphSpT{\DiffOpGraphSp^{\top}}
+\def\DiffOpGraphBandT{\DiffOpGraphBand^{\top}}
+
+\def\BalanceParamOne{\omega_{1}}
+\def\BalanceParamTwo{\omega_{2}}
+
 
 
 % 3.2 HSI Denoising Problem
@@ -207,16 +245,7 @@
 \def\IndexHSSTVOne{\text{(d)}}
 \def\IndexHSSTVTwo{\text{(e)}}
 \def\IndexllHTV{\text{(f)}}
-\def\IndexSTV{\text{(g)}}
-\def\IndexSSST{\text{(h)}}
-\def\IndexLRTDTV{\text{(i)}}
-\def\IndexFGSLR{\text{(j)}}
-\def\IndexTPTV{\text{(k)}}
-\def\IndexQRNND{\text{(l)}}
-\def\IndexFastHyMix{\text{(m)}}
-\def\IndexSSSTTV{\text{(n)}}
+\def\IndexGSSTV{\text{(g)}}
+\def\IndexGASSTV{\text{(h)}}
 
-
-% Appendix
-\def\MatHSIClean{\mathbf{U}^{(\IndexBlock)}}
 
