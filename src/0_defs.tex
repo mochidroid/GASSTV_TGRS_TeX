@@ -135,7 +135,8 @@
 
 \def\SpatialGraph{\mathcal{G}_{\text{sp}}}
 \def\SpatialGraphEdgeSet{\mathcal{E}_{\text{sp}}}
-\def\SpatialGraphWeightMat{\mathbf{W}_{\text{sp}}}
+\def\SpatialGraphWeightMat{\mathbf{W}_{\SpatialGraph}}
+\def\SpatialGraphWeightMatTwoD{\mathbf{W}_{\text{sp}}^{'}}
 \def\IndexEdgeOne{p}
 \def\IndexEdgeTwo{q}
 \def\SpatialGraphEdge{e_{\IndexEdgeOne, \IndexEdgeTwo}}
@@ -144,7 +145,8 @@
 \def\ParamSpatialGraph{\sigma_{\text{sp}}}
 
 
-\def\SpatialGraphIncidenceMat{\mathbf{D}}
+\def\SpatialGraphIncidenceMat{\mathbf{D}_{\SpatialGraph}}
+\def\SpatialGraphIncidenceMatTwoD{\mathbf{D}}
 \def\DiffOpGraphSp{\mathbf{D}_{\SpatialGraph}}
 
 
@@ -152,9 +154,18 @@
 % 3.1 Weighted Spectral Difference Operator based on Spectral Graph
 \def\IndexSegment{k}
 \def\NumSegment{K}
+\def\SetIndice{\Omega}
 \def\Segment#1{\mathcal{S}_{#1}}
+\def\Centroid#1{\mu_{#1}}
 \def\LabelMap{\mathbf{L}}
 \def\SpectrumRep#1{\mathbf{r}_{#1}}
+
+\def\VecSpectralDiff#1{\mathbf{d}_{#1}}
+\def\IndexSpecNodeOne{p}
+\def\IndexSpecNodeTwo{q}
+
+\def\SpectralGraphSegment#1{\mathcal{G}_{\lambda}^{(#1)}}
+
 
 \def\SpectralGraph{\mathcal{G}_{\lambda}}
 \def\SpectralGraphNode{\mathbf{x}_{\lambda}}
@@ -166,6 +177,8 @@
 
 \def\DiffOpGraphBand{\mathbf{D}_{\SpectralGraph}}
 
+
+\def\SpectralGraphLaplacian{\mathbf{L}_{\SpectralGraph}}
 
 % 3.2 GASSTV
 \def\GASSTV{\text{GASSTV}}
@@ -184,12 +197,16 @@
 \def\DiffOpGraphSpT{\DiffOpGraphSp^{\top}}
 \def\DiffOpGraphBandT{\DiffOpGraphBand^{\top}}
 
+\def\BalanceParam{\omega}
 \def\BalanceParamOne{\omega_{1}}
 \def\BalanceParamTwo{\omega_{2}}
 
+\def\RadiusGraphSp{\rho_{\text{sp}}}
+\def\ParamRadiusGraphSp{\omega_{\text{sp}}}
 
 
-% 3.2 HSI Denoising Problem
+
+% 3.3 HSI Denoising Problem
 \def\RadiusFidel{\varepsilon}
 \def\RadiusSparse{\alpha}
 \def\RadiusStripe{\beta}

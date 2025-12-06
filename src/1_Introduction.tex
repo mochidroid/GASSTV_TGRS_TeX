@@ -10,6 +10,17 @@ Model-based approaches for HS image denoising can be broadly categorized into lo
 
 \subsection{Existing TV-type Regularization Methods}
 \label{sec:existing_tv_methods}
+The initial TV-based method for HS image denoising is the Spectral-Spatial Adaptive Hyperspectral TV (SSAHTV)~\cite{Yuan2012HTV}, were proposed to model spatial piecewise smoothness. Subsequently, Anisotropic Spectral-Spatial TV (ASSTV) 2 was introduced to incorporate spectral differences, capturing the correlation between bands. However, since these methods directly minimize the $l_1$-norm of first-order differences, they tend to cause over-smoothing, as they cannot sufficiently distinguish between noise and inherent image gradients.
+
+
+To overcome the over-smoothing issue associated with first-order differences, Spatio-Spectral Total Variation (SSTV) 4 was proposed. SSTV utilizes second-order spatio-spectral differences (i.e., spatial differences of spectral differences), which effectively models the spatial similarity between adjacent bands while avoiding the excessive smoothing typical of first-order methods5555. Due to its effectiveness, SSTV has established itself as a strong baseline and has been extended into various forms.
+
+
+Several variants have been developed to enhance SSTV's performance. Hybrid Spatio-Spectral TV (HSSTV) 7incorporates first-order spatial differences into the SSTV framework to suppress the generation of continuous artifacts in the spectral direction8. To achieve sharper edges, $l_0$-$l_1$ Hybrid TV ($l_0$-$l_1$HTV) 9introduces an $l_0$-norm constraint on spatial differences, allowing for direct control over the number of non-zero gradients (i.e., edge pixels)10. Furthermore, $l_0$-$l_{1-2}$ SSTV 11 employs the $l_{1-2}$ metric ($l_1$ minus $l_2$) instead of the standard $l_1$ norm. This approach provides a tighter approximation to the $l_0$ norm, thereby sharpening sparsity and avoiding staircase artifacts 12. Additionally, Spatio-Spectral Structure Tensor TV (S3TTV) captures semi-local spatial structures by evaluating the correlation of difference vectors within semi-local areas using the nuclear norm. However, a common limitation of SSTV and these variants is that they evaluate adjacent differences uniformly in both spatial and spectral directions. Consequently, they often fail to preserve complex spatial structures and spectral jumps (abrupt spectral changes), smoothing them out indistinguishably from noise.
+
+
+On the other hand, Graph Spatio-Spectral TV (GSSTV) addresses the spatial limitation by weighting the spatial difference operator based on a spatial graph, successfully maintaining complex spatial structures. Nevertheless, GSSTV remains uniform in the spectral direction, failing to capture spectral discontinuities. Furthermore, since the graph weighting is directly incorporated into the SSTV formulation (second-order differences), it suffers from reduced power in determining the solution (regularization ability) compared to methods that explicitly constrain first-order characteristics. % ノイズとの峻別能力が弱い、みたいなことを書くか、重みが0になってしまう部分でノイズが残ってしまう、みたいなことを書くか
+
 % TVは自然画像のエッジを保存のために提案された
 % HTVは自然画像の手法を拡張して～
 
