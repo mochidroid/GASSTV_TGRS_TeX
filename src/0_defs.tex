@@ -135,7 +135,8 @@
 
 \def\SpatialGraph{\mathcal{G}_{\text{sp}}}
 \def\SpatialGraphEdgeSet{\mathcal{E}_{\text{sp}}}
-\def\SpatialGraphWeightMat{\mathbf{W}_{\text{sp}}}
+\def\SpatialGraphWeightMat{\mathbf{W}_{\SpatialGraph}}
+\def\SpatialGraphWeightMatTwoD{\mathbf{W}_{\text{sp}}^{'}}
 \def\IndexEdgeOne{p}
 \def\IndexEdgeTwo{q}
 \def\SpatialGraphEdge{e_{\IndexEdgeOne, \IndexEdgeTwo}}
@@ -144,7 +145,8 @@
 \def\ParamSpatialGraph{\sigma_{\text{sp}}}
 
 
-\def\SpatialGraphIncidenceMat{\mathbf{D}}
+\def\SpatialGraphIncidenceMat{\mathbf{D}_{\SpatialGraph}}
+\def\SpatialGraphIncidenceMatTwoD{\mathbf{D}}
 \def\DiffOpGraphSp{\mathbf{D}_{\SpatialGraph}}
 
 
@@ -152,7 +154,9 @@
 % 3.1 Weighted Spectral Difference Operator based on Spectral Graph
 \def\IndexSegment{k}
 \def\NumSegment{K}
+\def\SetIndice{\Omega}
 \def\Segment#1{\mathcal{S}_{#1}}
+\def\Centroid#1{\mu_{#1}}
 \def\LabelMap{\mathbf{L}}
 \def\SpectrumRep#1{\mathbf{r}_{#1}}
 
@@ -184,8 +188,10 @@
 \def\DiffOpGraphSpT{\DiffOpGraphSp^{\top}}
 \def\DiffOpGraphBandT{\DiffOpGraphBand^{\top}}
 
+\def\BalanceParam{\lambda}
 \def\BalanceParamOne{\omega_{1}}
 \def\BalanceParamTwo{\omega_{2}}
+\def\RadiusGraphSp{\rho_{\text{sp}}}
 
 
 

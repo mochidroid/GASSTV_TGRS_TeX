@@ -143,3 +143,40 @@ The standard PDS needs to adjust the appropriate stepsize parameters to satisfy 
 	\end{align}
 	then the inquality in~\eqref{ieq:ConvergenceCondition} holds.
 \end{lem}
+
+
+\subsection{Weighted Spatial Difference Operator based on Spatial Graph by GSSTV~\cite{Takemoto2022GSSTV}}
+\label{subsec:SpatialGraph}
+Since we only obtain a noisy HS image in real situations, we construct a spatial graph via a guide image computed by
+\begin{equation}
+    \label{eq:GuideImage}
+    \GuideImage(\IndexVert, \IndexHori) :=  \tfrac{1}{\NumBand} \sum \nolimits_{\IndexBand}^{\NumBand} \HSIObsv(\IndexVert, \IndexHori, \IndexBand),
+\end{equation}
+where $\HSIObsv$ is a given HS image.
+The guide image is averaged in the spectral direction to reduce noise while maintaining the spatial structure. 
+Next, we consider to construct a weighted graph $\SpatialGraph(\GuideImage, \SpatialGraphEdgeSet, \SpatialGraphWeightMatTwoD)$ with the edges $\SpatialGraphEdge \in \SpatialGraphEdgeSet$ ($\IndexEdgeOne$ and $\IndexEdgeTwo$ are indices of pixels ($1 \leq \IndexEdgeOne < \IndexEdgeTwo \leq \NumVert \NumHori$)).
+The weight matrix $\SpatialGraphWeightMatTwoD \in \RealSpace{\NumSpatialGraphEdge \times \NumSpatialGraphEdge}$ is a diagonal matrix whose entries are the weights $\SpatialGraphWeight \in (0, 1]$ assigned to the edges $\SpatialGraphEdge$, defined as
+\begin{equation}
+    \label{eq:SpatialGraphWeight}
+    \SpatialGraphWeight := \exp{\left( - \frac{( \GuideImageVec_{\IndexEdgeOne} - \GuideImageVec_{\IndexEdgeTwo})^{2}}{2\ParamSpatialGraph^{2}} \right)},
+\end{equation}
+where $\ParamSpatialGraph$ is a parameter.
+The value of $\SpatialGraphWeight$ is large as the correlation between $\GuideImageVec_{\IndexEdgeOne}$ and $\GuideImageVec_{\IndexEdgeTwo}$ is higher.
+We also introduce the incidence matrix $\SpatialGraphIncidenceMatTwoD \in \RealSpace{|\SpatialGraphEdgeSet| \times \NumVert \NumHori}$ for a graph $\SpatialGraph$ as follows: 
+\begin{equation}
+	\label{eq:SpatialGraphIncidenceMat}
+	\SpatialGraphIncidenceMatTwoD_{\SpatialGraphEdge, k} = 
+	\begin{cases}
+		-1 & \text{if } p = k, \\
+		1 & \text{if } q = k, \\
+		0 & \text{otherwise},
+	\end{cases}
+	(\forall k = 1, \ldots, \NumVert \NumHori).
+\end{equation}
+To apply the spatial graph total variation to the entire HS image, we extend the weight matrix $\SpatialGraphWeightMatTwoD$ and the incidence matrix $\SpatialGraphIncidenceMatTwoD$. Let $\SpatialGraphWeightMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumBand  |\SpatialGraphEdgeSet|}$ and $\SpatialGraphIncidenceMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumAll}$ denote the block diagonal matrices consisting of $\NumBand $ repetitions of $\SpatialGraphWeightMatTwoD$ and $\SpatialGraphIncidenceMatTwoD$, respectively, defined as:
+\begin{equation}
+	\label{eq:ExtentionSpatialGraphMat}
+	\SpatialGraphWeightMat := \diag{(\SpatialGraphWeightMatTwoD, \dots, \SpatialGraphWeightMatTwoD)}, \quad
+	\SpatialGraphIncidenceMat := \diag{(\SpatialGraphIncidenceMatTwoD, \dots, \SpatialGraphIncidenceMatTwoD)}.
+\end{equation}
+Then, the weighted spatial graph difference operator for an HS image is given by $\SpatialGraphWeightMat \SpatialGraphIncidenceMat$.
