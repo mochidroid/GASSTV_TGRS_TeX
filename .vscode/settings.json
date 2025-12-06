@@ -30,14 +30,14 @@
             "name": "latexmk",
             "command": "latexmk",
             "args": [
-              "-synctex=1",
-              "-interaction=nonstopmode",
-              "-file-line-error",
-              "-pdf",
-              "-outdir=out",
-              "%DOC%"
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=out",
+                "%DOC%"
             ]
-          },
+        },
         {
             "name": "lualatexmk",
             "command": "latexmk",
@@ -88,7 +88,8 @@
             "name": "bibtex",
             "command": "bibtex",
             "args": [
-                "%DOCFILE%"
+                // 変更点: outフォルダの中にあるauxファイルを参照させる
+                "out/%DOCFILE%"
             ],
             "env": {}
         },
@@ -154,12 +155,27 @@
 
     "latex-workshop.latex.recipes": [
         {
-        "name": "latexmk 🔄",
-        "tools": ["latexmk"]
+            // これがTeXstudioと同じ設定です (pdflatex -> bibtex -> pdflatex x2)
+            "name": "Compile & View (TeXstudio Style)",
+            "tools": [
+                "pdflatex",
+                "bibtex",
+                "pdflatex",
+                "pdflatex"
+            ]
         },
         {
-        "name": "pdflatex ➜ pdflatex",
-        "tools": ["pdflatex", "pdflatex"]
+            "name": "latexmk 🔄",
+            "tools": [
+                "latexmk"
+            ]
+        },
+        {
+            "name": "pdflatex ➜ pdflatex",
+            "tools": [
+                "pdflatex",
+                "pdflatex"
+            ]
         }
     ],
 
