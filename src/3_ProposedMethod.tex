@@ -40,74 +40,38 @@ The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed 
 
 
 
-% Let $\LabelMap \in \RealSpace{\NumVert \times \NumHori}$ denote the resulting label map, where $\LabelMap(\IndexVert, \IndexHori) = \IndexSegment$ indicates that the pixel at position $(\IndexVert, \IndexHori)$ belongs to segment $\Segment{\IndexSegment}$.
-
-% Next, for each segment, all pixels of the noisy HS image $\HSIObsv$ belonging to $\Segment{\IndexSegment}$ are averaged along the spatial direction to compute a representative spectrum $\SpectrumRep{\IndexSegment}$ as
-% \begin{equation}
-%     \label{eq:SpectrumRep}
-%     \SpectrumRep{\IndexSegment} := \frac{1}{|\Segment{\IndexSegment}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \HSIObsv(\IndexVert, \IndexHori, :),
-% \end{equation}
-% where $\HSIObsv(\IndexVert, \IndexHori, :)$ denotes the spectral vector with length $\NumBand$ at location $(\IndexVert, \IndexHori)$.
-% By averaging the spectral vectors within each segment, the spectra of the segment can be effectively characterized while reducing noise.
-
-% Here, the representative spectra $\{ \SpectrumRep{1}, \ldots, \SpectrumRep{\NumSegment} \}$ are regarded as line graphs of length $\NumBand$.
-% Each representative spectrum is assigned to the pixels of its corresponding segment, and by doing so, we construct a spectral graph $\SpectralGraph(\SpectralGraphNode, \SpectralGraphEdgeSet, \SpectralGraphWeightMat)$ that consists of $\NumVert \times \NumHori$ line graphs.
-% The node vectors $\SpectralGraphNode$ are defined as follows: for all $\IndexVert$, $\IndexHori$
-% \begin{equation}
-%     \label{eq:SpectralGraphNode}
-%     \SpectralGraphNode(\IndexVert, \IndexHori, :) := \SpectrumRep{\LabelMap(\IndexVert, \IndexHori)},
-% \end{equation}
-% where $\SpectralGraphNode(\IndexVert, \IndexHori, :)$ represents the spectral vector of length $\NumBand$ at location $(\IndexVert, \IndexHori)$.
-% % The weight matrix $\SpectralGraphWeightMat \in \RealSpace{\NumAll \times \NumAll}$ is a diagonal matrix whose entries are the weights $\SpectralGraphWeight{} \in (0, 1]$ defined by
-% % % \begin{equation}
-% % %     \label{eq:SpectralGraphWeight}
-% % %     \SpectralGraphWeight{\IndexWeight} := \exp{\left( -\frac{[\DiffOpBand \SpectralGraphNode]_{\IndexWeight}^{2}}{2\ParamSpectralGraph^{2}} \right)},
-% % % \end{equation}
-% % \begin{equation}
-% %     \label{eq:SpectralGraphWeight}
-% %     \SpectralGraphWeight{\IndexWeight} := \exp{\left( -[\DiffOpBand \SpectralGraphNode]_{\IndexWeight}^{2} / 2\ParamSpectralGraph^{2}\right)},
-% % \end{equation}
-% % where $[\DiffOpBand \SpectralGraphNode]_{\IndexWeight}^{2}$ represents the $\IndexWeight$-th element of the product, and squaring is applied to each element.
-% % Then, the weighted spectral difference operator $\DiffOpGraphBand$ is defined via the graph $\SpectralGraph$ as follows:
-% % \begin{equation}
-% %     \label{eq:DiffSpectralGraph}
-% %     \DiffOpGraphBand := \SpectralGraphWeightMat \DiffOpBand.
-% % \end{equation}
-% The weight matrix $\SpectralGraphWeightMat \in \RealSpace{\NumAll \times \NumAll}$ is a diagonal matrix whose entries are the weights $\SpectralGraphWeight{} \in (0, 1]$ defined by
-% \begin{equation}
-%     \label{eq:SpectralGraphWeight}
-%     \SpectralGraphWeight{\IndexWeight} := \exp{\left( - \frac{[\DiffOpBand \SpectralGraphNode]_{\IndexWeight}^{2}}{2\ParamSpectralGraph^{2}}\right)},
-% \end{equation} % x_\lambda - x_\lambdaの形のほうがきれいかも
-% where $[\DiffOpBand \SpectralGraphNode]_{\IndexWeight}^{2}$ represents the $\IndexWeight$-th element of the product, and squaring is applied to each element.
-% Then, the weighted spectral difference operator $\DiffOpGraphBand$ is defined via the graph $\SpectralGraph$ as 
-% \begin{equation}
-%     \label{eq:SpectralGraphTV}
-%     \DiffOpGraphBand := \SpectralGraphWeightMat \DiffOpBand.
-% \end{equation}
-
-
 \subsection{GASSTV}
 \label{subsec:GASSTV}
 Incorporating both the spatial graph $\SpatialGraph$ and the spectral graph $\SpectralGraph$, our \textit{Graph-Aided Spatio-Spectral Total Variation} (GASSTV) is defined as follows:
 \begin{align}
     \label{eq:GASSTV}
-    \GASSTV(\HSIClean) &:= \| \DiffOpSp \DiffOpBand \HSIClean\|_{1} + \frac{\BalanceParam}{2} \| \SpectralGraphWeightMat \DiffOpBand \HSIClean \|_{2}^{2}, \notag \\
-    &\text{ s.t. } \| \DiffOpGraphSp \HSIClean \|_{1} \leq \RadiusGraphSp,
+    \GASSTV(\HSIClean) &:= \| \DiffOpSp \DiffOpBand \HSIClean\|_{1} + \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpectralGraphLaplacian \DiffOpBand \HSIClean, \notag \\
+    &\text{ s.t. } \| \SpatialGraphWeightMat \SpatialGraphIncidenceMat \HSIClean \|_{1} \leq \RadiusGraphSp,
 \end{align}
-where $\DiffOpSp := \begin{pmatrix} \DiffOpVertT & \DiffOpHoriT \end{pmatrix}^{\top} \in \RealSpace{2 \NumAll \times \NumAll}$ is the spatial difference operator, $\BalanceParam$ is the parameter.
-The first term represents Spatio-Spectral Total Variation (SSTV)~\cite{Aggarwal2016SSTV}, while the second and third terms represent the spatial and spectral graph-based TV (spatial graph TV and spectral graph TV), respectively.
-SSTV effectively removes noise and preserves spatio-spectral continuity but struggles to capture complex spatial structures and sharp spectral jumps, resulting in the loss of important details.
-GASSTV addresses these issues by incorporating spatial and spectral graph TVs.
-% Spatial graph TV captures complex spatial structures, while spectral graph TV preserves sharp spectral variations.
-% By integrating these graph-based regularization terms with SSTV, GASSTV enhances noise removal while preserving crucial spatial and spectral details.
-By capturing complex spatial structures and spectral jumps with spatial and spectral graph TVs, respectively, GASSTV enhances noise removal while preserving important spatial and spectral details.
-% この部分の記述をもう少し頑張ろう
+where $\DiffOpSp := \begin{pmatrix} \DiffOpVertT & \DiffOpHoriT \end{pmatrix}^{\top} \in \RealSpace{2 \NumAll \times \NumAll}$ is the spatial difference operator, $\BalanceParam$ and $\RadiusGraphSp$ are the parameters.
+ The formulation consists of three key components:
+ \begin{enumerate}
+    \item Spatio-Spectral Total Variation (SSTV): The first term in (21) is the standard SSTV [21], which imposes sparsity on the second-order spatio-spectral differences. This term promotes piecewise smoothness simultaneously across spatial and spectral dimensions, serving as the baseline for noise suppression.
+    \item Spectral Graph Laplacian Regularizer: The second term in (21) introduces the spectral graph regularization. We employ the Graph Laplacian quadratic form based on the constructed spectral graph $\mathcal{G}_{\lambda}$. This term imposes smoothness on the spectral variations over the graph structure. By minimizing the weighted differences of gradients between connected nodes, it ensures that spectral bands exhibiting similar fluctuation trends in the representative spectra maintain consistent variations in the restored image. Consequently, this mechanism effectively preserves smooth spectral curves while explicitly maintaining inherent spectral jumps, which would otherwise be smoothed out by uniform regularization.
+    \item Spatial Graph Total Variation Constraint: The inequality constraint (22) incorporates the spatial structural information. Here, we use the weighted Graph Total Variation based on the $l_1$-norm of the first-order spatial differences. The use of the $l_1$-norm is crucial as it promotes sparsity in the gradient domain, thereby strictly preserving sharp edges and complex spatial structures without blurring. Furthermore, by formulating this term as a hard constraint rather than a penalty in the objective function, we can directly control the degree of spatial smoothness. The upper bound $\RadiusGraphSp$ is adaptively determined by the signal intensity of the observed image $\HSIObsv$ and the structure of the guide image $\GuideImage$ as:
+    \begin{equation}
+        \label{eq:SpatialGraphRadius}
+        \RadiusGraphSp := \ParamRadiusGraphSp \frac{\|\HSIObsv \|_{1}}{\NumVert \NumHori} \|\SpatialGraphWeightMatTwoD \SpatialGraphIncidenceMatTwoD \GuideImage \|_1,
+    \end{equation} 
+    where $\ParamRadiusGraphSp > 0$ is a parameter. This definition effectively scales the spatial variation of the guide image by the sum of average intensities of all bands in the observed image $\GuideImage$.
+\end{enumerate}
 
-\begin{equation}
-    \label{eq:SpatialGraphRadius}
-    \RadiusGraphSp := \sum_{\IndexBand = 1}^{\NumBand} ,
-\end{equation}
-% 空間グラフTVの制約パラメータは以下で観測HS画像から設定する、みたいなことを書く
+Consequently, by integrating these complementary regularization functions, GASSTV effectively suppresses mixed noise while faithfully preserving complex spatial structures and spectral jumps.
+
+
+% The upper bound $\RadiusGraphSp$ is set as:
+% \begin{equation}
+%     \label{eq:SpatialGraphRadius}
+%     \RadiusGraphSp := \ParamRadiusGraphSp \frac{\|\HSIObsv \|_{1}}{\NumVert \NumHori} \|\SpatialGraphWeightMatTwoD \SpatialGraphIncidenceMatTwoD \GuideImage \|_1,
+% \end{equation}
+% where $\ParamRadiusGraphSp > 0$ is a parameter. This definition effectively scales the spatial variation of the guide image by the sum of average intensities of all bands in the observed image $\GuideImage$.
+
+
 
 
 \subsection{Problem Formulation}
@@ -117,37 +81,39 @@ An observed HS image $\HSIObsv \in \RealSpace{\NumAll}$ contaminated by mixed no
     \label{eq:ObsvModel}
     \HSIObsv = \bar{\HSIClean} + \bar{\NoiseSparse} + \bar{\NoiseStripe} + \NoiseGauss,
 \end{equation}
-where $\bar{\HSIClean}$, $\bar{\NoiseSparse}$, $\bar{\NoiseStripe}$, and $\NoiseGauss$ represent a clean HS image, sparse noise such as outliers, stripe noise and random noise, respectively. % stripe noiseのところもう少し何か書く？
+where $\bar{\HSIClean}$, $\bar{\NoiseSparse}$, $\bar{\NoiseStripe}$, and $\NoiseGauss$ represent a clean HS image, sparse noise such as outliers, stripe noise and random noise, respectively.
 
 Based on the observation model~\eqref{eq:ObsvModel}, we formulate HS image denoising problem by GASSTV as a constrained convex optimization problem with the following form:
 \begin{equation}
     \label{prob:OptimProb}
     \min_{\HSIClean, \NoiseSparse, \NoiseStripe} \GASSTV(\HSIClean) \quad \mathrm{s.t.} \: 
     \begin{cases}
-        \HSIClean + \NoiseSparse \in \BallFidel, \\
         \NoiseSparse \in \BallSparse, \\
         \NoiseStripe \in \BallStripe, \\
         \DiffOpVert \NoiseStripe = \mathbf{0}, \\
+        \HSIClean + \NoiseSparse + \NoiseStripe \in \BallFidel, \\
         \HSIClean \in \SetRange, \\
     \end{cases}
 \end{equation}
 where
 \begin{align}
-    \label{eq:ConstL2ball}
-    &\BallFidel := \{ \VarOne \in \RealSpace{\NumAll} | \:
-    \|\VarOne - \HSIObsv\|_2 \leq \RadiusFidel \}, \\
-    \label{eq:ConstL1ball}
-    &\BallSparse := \{ \VarOne \in \RealSpace{\NumAll} | \:
-    \|\VarOne\|_{1} \leq \RadiusSparse \}, \\
-    \label{eq:ConstBox}
-    &\SetRange := \{ \VarOne \in \RealSpace{\NumAll} | \:
-    \MinRange \leq \ElementOne{\IndexOne} \leq \MaxRange  \: (\IndexOne = 1,\dots , \NumAll) \}.
+	\label{eq:constraint_sparse}
+	&\BallSparse := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne\|_{1} \leq \RadiusSparse \},  \\
+	\label{eq:constraint_stripe}
+	&\BallStripe := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne\|_{1} \leq \RadiusStripe \},  \\
+	\label{eq:constraint_fidel}
+	&\BallFidel := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\|\VarOne - \HSIObsv\|_2 \leq \RadiusFidel \},  \\
+	\label{eq:constraint_box}
+	&\SetRange := \{ \VarOne \in \RealSpace{\NumAll} | \:
+	\MinRange \leq \ElementOne{\IndexOne} \leq \MaxRange  \: (\IndexOne = 1, \dots , \NumAll) \}.
 \end{align}
-The first constraint serves as data-fidelity with the $\HSIObsv$-centered $\ell_2$-ball of the radius $\RadiusFidel > 0$.
-The second constraint characterizes sparse noise with the zero-centered $\ell_1$-ball of the radius $\RadiusSparse > 0$.
-Since we impose the above constraints instead of adding terms to the objective function, it becomes easier to adjust the parameters.
-These advantages are also addressed, for example, in~\cite{Afonso2011Constraint, chierchia2015Constraint, Ono2015Constraint, Ono2017Constraint, Ono2019Constraint}.
-The third constraint is a box constraint which represents the dynamic range of $\HSIClean$.
+The first constraint characterizes sparse noise $\NoiseSparse$ with the zero-centered $\ell_1$-ball of the radius $\RadiusSparse > 0$. The second constraint controls the intensity of stripe noise $\NoiseStripe$ and the third constraint captures the vertical flatness property by imposing zero to the vertical gradient of $\NoiseStripe$. These constraints effectively characterize stripe noise~\cite{Naganuma2022Destriping}. The fourth constraint serves as data-fidelity with the $\HSIObsv$-centered $\ell_2$-ball of the radius $\RadiusFidel > 0$. The fifth constraint is a box constraint with $\MinRange < \MaxRange$ which represents the dynamic range of $\HSIClean$. For normalized HS images, we can set $\MinRange = 0$ and $\MaxRange = 1$.
+
+
+Using the first, second, and fourth constraints instead of adding terms to the objective function makes it much easier to adjust the parameters $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$. This is because by expressing multiple terms as constraints, rather than adding them to the objective function, the hyperparameters associated with each term are converted to be independent of each other, and appropriate parameters can be determined without interdependence. Such advantage has been addressed, e.g., in~\cite{Afonso2011Constraint, Chierchia2015Constraint, Ono2015Constraint, Ono2017Constraint, Ono2019Constraint}.
 
 % \input{algo_PPDS}
 
