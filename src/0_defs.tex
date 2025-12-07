@@ -64,6 +64,8 @@
 \def\ResNoiseSparse{\NoiseSparse^{'}}
 \def\ResNoiseStripe{\NoiseStripe^{'}}
 
+\def\HSICleanTmp{\tilde{\VarDual{}}}
+
 % \def\NumPixel{N}
 \def\NumAll{N}
 \def\NumVert{N_{1}}
@@ -96,11 +98,11 @@
 
 
 % 2.3 P-PDS
-\def\FuncPrimal#1{\FuncOne_{#1}}
-\def\FuncDual#1{\FuncTwo_{#1}}
+\def\FuncPrimal#1{f_{#1}}
+\def\FuncDual#1{g_{#1}}
+\def\FuncDifferentiable#1{\varphi_{#1}}
 \def\VarPrimal#1{\VarOne_{#1}}
 \def\VarDual#1{\VarTwo_{#1}}
-\def\VarDualMatrix#1{\mathbf{Y}_{#1}}
 
 \def\NumVarPrimal{\NumVarOne}
 \def\NumVarDual{\NumVarTwo}
@@ -177,7 +179,7 @@
 
 \def\DiffOpGraphBand{\mathbf{D}_{\SpectralGraph}}
 
-
+\def\GraphLaplacianSegment#1{\mathbf{L}^{(#1)}}
 \def\SpectralGraphLaplacian{\mathbf{L}_{\SpectralGraph}}
 
 % 3.2 GASSTV
@@ -207,6 +209,8 @@
 
 
 % 3.3 HSI Denoising Problem
+\def\BallSpatialGraph{B_{1, \RadiusGraphSp}}
+
 \def\RadiusFidel{\varepsilon}
 \def\RadiusSparse{\alpha}
 \def\RadiusStripe{\beta}
@@ -236,8 +240,7 @@
 % \def\MaxRange{\bar{\mu}}
 % \def\SetRange{\SetProb_{\lbrack \MinRange,\MaxRange \rbrack}}
 
-\def\IndexVert{i}
-\def\IndexHori{j}
+\def\MaxSingularValue#1{\sigma_{\text{max}} (#1)}
 
 
 % 4.1 Simulated HS Image Data Experiment
