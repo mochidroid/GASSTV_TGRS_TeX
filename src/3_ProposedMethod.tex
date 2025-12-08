@@ -6,37 +6,65 @@ We propose a novel regularization function incorporating spatial and spectral gr
 \subsection{Spectral Graph-based Weighted Difference Operator}
 \label{subsec:WeightedSpectralDiff}
 In constructing the spectral graph from a noisy HS image, we assume that when the HS image is segmented, each segment contains similar spectral characteristics. 
-Based on this assumption, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. Next, we divide the guide image into $\NumSegment$ segments $\Segment{\IndexSegment} (\IndexSegment = 1, \dots, \NumSegment)$ reflecting the spatial structure. Let $\SetIndice := {(\IndexVert, \IndexHori) | 1 \leq \IndexVert \leq \NumVert, 1 \leq \IndexHori \leq \NumHori}$ be the set of spatial indices. Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain the segments $\{\Segment{\IndexSegment}\}_{\IndexSegment=1}^{\NumSegment}$ by solving the following minimization problem:
+Based on this assumption, we first segment the noisy HS image into $\NumSegment$ regions and then construct a spectral graph for each segment using its representative spectrum. To obtain the segments, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. 
+% Let Ω := {(i,j)|1 ≤ i ≤ N_1, 1 ≤ j ≤ N_2} be the set of spatial indices. 
+Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain $\NumSegment$ segments $\{\Segment{\IndexSegment}\}_{\IndexSegment=1}^{\NumSegment}$ by solving the following minimization problem:
 \begin{equation}
     \label{eq:Segmentation}
     \min_{\{\Segment{\IndexSegment}\} \{ \Centroid{\IndexSegment} \}} \sum_{\IndexSegment = 1}^{\NumSegment} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \| \GuideImage(\IndexVert, \IndexHori) - \Centroid{\IndexSegment} \|_{2}^{2},
 \end{equation}
 where $\Centroid{\IndexSegment}$ represents the centroid of the $\IndexSegment$-th segment.
-
-
-Based on the obtained segments, we compute a representative spectrum for each segment. For each segment $\Segment{\IndexSegment}$, we define the representative spectrum $\SpectrumRep{\IndexSegment} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
+% Based on this assumption, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. Next, we divide the guide image into $\NumSegment$ segments $\Segment{\IndexSegment} (\IndexSegment = 1, \dots, \NumSegment)$ reflecting the spatial structure. Let $\SetIndice := {(\IndexVert, \IndexHori) | 1 \leq \IndexVert \leq \NumVert, 1 \leq \IndexHori \leq \NumHori}$ be the set of spatial indices. Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain the segments $\{\Segment{\IndexSegment}\}_{\IndexSegment=1}^{\NumSegment}$ by solving the following minimization problem:
+% \begin{equation}
+%     \label{eq:Segmentation}
+%     \min_{\{\Segment{\IndexSegment}\} \{ \Centroid{\IndexSegment} \}} \sum_{\IndexSegment = 1}^{\NumSegment} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \| \GuideImage(\IndexVert, \IndexHori) - \Centroid{\IndexSegment} \|_{2}^{2},
+% \end{equation}
+% where $\Centroid{\IndexSegment}$ represents the centroid of the $\IndexSegment$-th segment.
+For each segment $\Segment{\IndexSegment}$, we compute a representative spectrum $\SpectrumRep{\IndexSegment} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
 \begin{equation}
     \label{eq:SpectrumRep}
     \SpectrumRep{\IndexSegment} := \frac{1}{|\Segment{\IndexSegment}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \HSIObsv(\IndexVert, \IndexHori, :),
 \end{equation}
 where $\HSIObsv(\IndexVert, \IndexHori, :)$ denotes the spectral vector with length $\NumBand$ at location $(\IndexVert, \IndexHori)$. By averaging the spectral vectors within each segment, the spectra of the segment can be effectively characterized while reducing noise.
+% Based on the obtained segments, we compute a representative spectrum for each segment. For each segment $\Segment{\IndexSegment}$, we define the representative spectrum $\SpectrumRep{\IndexSegment} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
+% \begin{equation}
+%     \label{eq:SpectrumRep}
+%     \SpectrumRep{\IndexSegment} := \frac{1}{|\Segment{\IndexSegment}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \HSIObsv(\IndexVert, \IndexHori, :),
+% \end{equation}
+% where $\HSIObsv(\IndexVert, \IndexHori, :)$ denotes the spectral vector with length $\NumBand$ at location $(\IndexVert, \IndexHori)$. By averaging the spectral vectors within each segment, the spectra of the segment can be effectively characterized while reducing noise.
 
 
-Following the calculation of the representative spectra, we construct a spectral graph for each segment. To explicitly capture spectral variations including smoothness and spectral jumps, we design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. 
-First, for the $\IndexSegment$-th segment, we calculate the spectral difference vector $\VecSpectralDiff{\IndexSegment} \in \RealSpace{\NumBand}$, where the $\IndexSpecNodeOne$-th element $\VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne}$ is defined as:
+Following the calculation of the representative spectra, we construct a spectral graph for each segment to explicitly capture spectral variations including smoothness and spectral jumps. We design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. First, for the $\IndexSegment$-th segment, we calculate the spectral difference vector $\VecSpectralDiff{\IndexSegment} \in \RealSpace{\NumBand}$, where the $\IndexSpecNodeOne$-th element $\VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne}$ is defined as:
 \begin{equation}
     \label{eq:SpectralDiffVec}
     \VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne} := \SpectrumRep{\IndexSegment, \IndexSpecNodeOne+1} - \SpectrumRep{\IndexSegment, \IndexSpecNodeOne}
-    , \quad (1 \leq \IndexSpecNodeOne <  \NumBand -1)
+    , \quad (1 \leq \IndexSpecNodeOne \leq \NumBand -1)
 \end{equation}
-where $\SpectrumRep{\IndexSegment, \IndexSpecNodeOne}$ is the $\IndexSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IndexSegment}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IndexSegment, \NumBand} = 0$).
-Next, we define a graph $\mathcal{G}^{(k)}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $M$-nearest neighbor ($M$-NN) strategy based on the distance between the gradient values. Let $\mathcal{N}_p$ denote the set of the $M$ nearest neighbors of the node $p$ determined by the Euclidean distance $|h_{k, p} - h_{k, q}|$. The weight $w_{p,q}^{(k)}$ is defined as:$$w_{p,q}^{(k)} :=
-\begin{cases}
-\exp\left( - \frac{(h_{k, p} - h_{k, q})^2}{2\sigma_{\lambda}^2} \right) & \text{if } q \in \mathcal{N}_p \text{ or } p \in \mathcal{N}_q, \\
-0 & \text{otherwise},
-\end{cases} \quad (1 \le p < q \le N_3-1), \eqno{(19)}$$where $\sigma_{\lambda}$ is a scaling parameter and $M$ controls the sparsity of the graph.
+% where $\SpectrumRep{\IndexSegment, \IndexSpecNodeOne}$ is the $\IndexSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IndexSegment}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IndexSegment, \NumBand} = 0$). Next, we define a graph $\SpectralGraphSegment{\IndexSegment}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $\NumNearestNeighbor$-nearest neighbor ($\NumNearestNeighbor$-NN) strategy based on the distance between the gradient values. Let N_p denote the set of the M nearest neighbors of the node p determined by the Euclidean distance |h_{k,p} - h_{k,q}|. The weight w^(k)_{p,q} is defined as:
+% \begin{cases}
+% \exp\left( - \frac{(h_{k, \IndexSpecNodeOne} - h_{k, \IndexSpecNodeTwo})^2}{2\ParamSpectralGraph^2} \right) & \text{if } q \in \mathcal{N}_p \text{ or } p \in \mathcal{N}_q, \\
+% 0 & \text{otherwise},
+% \end{cases}
+% where $1 \leq p < q \leq N_3-1$, $\ParamSpectralGraph$ is a scaling parameter, and $\NumNearestNeighbor$ controls the sparsity of the graph.
 
-The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed as $L^{(k)} := \mathcal{D}^{(k)} - W^{(k)}$. Finally, we extend these local Laplacians to the global spectral graph Laplacian $\mathbf{L}_{\mathcal{G}_{\lambda}} \in \mathbb{R}^{N \times N}$. Let $l_n \in \{1, \dots, K\}$ denote the segment label of the $n$-th spatial pixel. The global matrix is constructed as a block diagonal matrix:$$\mathbf{L}_{\mathcal{G}_{\lambda}} := \text{diag}(L^{(l_1)}, L^{(l_2)}, \dots, L^{(l_{N_1 N_2})}). \eqno{(20)}$$
+% The Laplacian matrix L^(k) ∈ R^{N_3×N_3} is then computed as L^(k) := D^(k) - W^(k). Finally, we extend these local Laplacians to the global spectral graph Laplacian L_{G_λ} ∈ R^{N×N}. Let l_n ∈ {1,...,K} denote the segment label of the n-th spatial pixel. The global matrix is constructed as a block diagonal matrix:$$\mathbf{L}_{\mathcal{G}_{\lambda}} := \text{diag}(L^{(l_1)}, L^{(l_2)}, \dots, L^{(l_{N_1 N_2})}). \eqno{(20)}$$
+
+
+% Following the calculation of the representative spectra, we construct a spectral graph for each segment. To explicitly capture spectral variations including smoothness and spectral jumps, we design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. 
+% First, for the $\IndexSegment$-th segment, we calculate the spectral difference vector $\VecSpectralDiff{\IndexSegment} \in \RealSpace{\NumBand}$, where the $\IndexSpecNodeOne$-th element $\VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne}$ is defined as:
+% \begin{equation}
+%     \label{eq:SpectralDiffVec}
+%     \VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne} := \SpectrumRep{\IndexSegment, \IndexSpecNodeOne+1} - \SpectrumRep{\IndexSegment, \IndexSpecNodeOne}
+%     , \quad (1 \leq \IndexSpecNodeOne <  \NumBand -1)
+% \end{equation}
+% where $\SpectrumRep{\IndexSegment, \IndexSpecNodeOne}$ is the $\IndexSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IndexSegment}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IndexSegment, \NumBand} = 0$).
+% Next, we define a graph $\mathcal{G}^{(k)}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $M$-nearest neighbor ($M$-NN) strategy based on the distance between the gradient values. Let $\mathcal{N}_p$ denote the set of the $M$ nearest neighbors of the node $p$ determined by the Euclidean distance $|h_{k, p} - h_{k, q}|$. The weight $w_{p,q}^{(k)}$ is defined as:$$w_{p,q}^{(k)} :=
+% \begin{cases}
+% \exp\left( - \frac{(h_{k, p} - h_{k, q})^2}{2\sigma_{\lambda}^2} \right) & \text{if } q \in \mathcal{N}_p \text{ or } p \in \mathcal{N}_q, \\
+% 0 & \text{otherwise},
+% \end{cases} \quad (1 \le p < q \le N_3-1), \eqno{(19)}$$where $\sigma_{\lambda}$ is a scaling parameter and $\NumNearestNeighbor$ controls the sparsity of the graph.
+
+% The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed as $L^{(k)} := \mathcal{D}^{(k)} - W^{(k)}$. Finally, we extend these local Laplacians to the global spectral graph Laplacian $\mathbf{L}_{\mathcal{G}_{\lambda}} \in \mathbb{R}^{N \times N}$. Let $l_n \in \{1, \dots, K\}$ denote the segment label of the $n$-th spatial pixel. The global matrix is constructed as a block diagonal matrix:$$\mathbf{L}_{\mathcal{G}_{\lambda}} := \text{diag}(L^{(l_1)}, L^{(l_2)}, \dots, L^{(l_{N_1 N_2})}). \eqno{(20)}$$
 
 
 
