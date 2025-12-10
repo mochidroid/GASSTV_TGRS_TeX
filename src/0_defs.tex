@@ -97,23 +97,31 @@
 \def\Projection#1{P_{#1}}
 
 
-% 2.3 P-PDS
-\def\FuncPrimal#1{f_{#1}}
-\def\FuncDual#1{g_{#1}}
-\def\FuncDifferentiable#1{\varphi_{#1}}
-\def\VarPrimal#1{\VarOne_{#1}}
-\def\VarDual#1{\VarTwo_{#1}}
+% 2.3 PDS
+\def\FuncPrimal{f}
+\def\FuncDual{g}
+\def\FuncSmooth{\varphi}
+\def\VarPrimal{\mathbf{x}}
+\def\VarDual{\mathbf{y}}
+
+\def\LinOpPDS{\mathbf{A}}
+
+\def\DimVarPrimal{n}
+\def\DimVarDual{m}
+
+\def\LipsitzConst{\beta}
+
+\def\MaxSingularValue#1{\sigma_{\text{max}} (#1)}
+
 
 \def\NumVarPrimal{\NumVarOne}
 \def\NumVarDual{\NumVarTwo}
-\def\DimVarPrimal#1{n_{#1}}
-\def\DimVarDual#1{m_{#1}}
 \def\IndexPrimal{i}
 \def\IndexDual{j}
 \def\IndexVarPrimal{k}
 \def\IndexVarDual{l}
 
-\def\LinOpPPDS#1{\mathbf{A}_{#1}}
+
 \def\ScalarStepsize#1{\gamma_{#1}}
 \def\MatrixStepsize#1{\mathbf{\Gamma}_{#1}}
 % \def\ParamStepsize#1{\mathbf{\Gamma}_{#1}}
@@ -246,7 +254,7 @@
 % \def\MaxRange{\bar{\mu}}
 % \def\SetRange{\SetProb_{\lbrack \MinRange,\MaxRange \rbrack}}
 
-\def\MaxSingularValue#1{\sigma_{\text{max}} (#1)}
+
 
 
 % 4.1 Simulated HS Image Data Experiment
