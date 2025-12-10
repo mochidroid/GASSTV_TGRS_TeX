@@ -77,7 +77,7 @@
 \def\NumSingularValue{Q}
 
 
-\def\IndexAlg{t}
+\def\IdxAlg{t}
 
 % 2.1 Notation
 \def\NotationVector{\mathbf{x}}
@@ -154,35 +154,39 @@
 
 
 % 3.1 Weighted Spectral Difference Operator based on Spectral Graph
-\def\IndexSegment{k}
-\def\NumSegment{K}
-\def\SetIndice{\Omega}
+\def\IdxSeg{k}
+\def\NumSeg{K}
+\def\SetIdc{\Omega}
 \def\Segment#1{\mathcal{S}_{#1}}
 \def\Centroid#1{\mu_{#1}}
 \def\LabelMap{\mathbf{L}}
 \def\SpectrumRep#1{\mathbf{r}_{#1}}
 
-\def\VecSpectralDiff#1{\mathbf{d}_{#1}}
-\def\IndexSpecNodeOne{p}
-\def\IndexSpecNodeTwo{q}
+\def\VecSpecDiff#1{\mathbf{d}_{#1}}
+\def\IdxSpecNodeOne{p}
+\def\IdxSpecNodeTwo{q}
 
 \def\SpectralGraphSegment#1{\mathcal{G}_{\lambda}^{(#1)}}
 
 \def\NumNearestNeighbor{M}
+\def\SpecGraphWeightSeg#1#2{w_{#2}^{(#1)}}
+\def\SpecGraphWeightSegMat{\mathbf{W}_{\lambda}}
+\def\SpecGraphDegreeSeg#1{\mathbf{D}^{(#1)}}
 
+\def\IdcNN#1{\mathcal{N}_{#1}}
+
+\def\SegLabel#1{l_{#1}}
 
 \def\SpectralGraph{\mathcal{G}_{\lambda}}
 \def\SpectralGraphNode{\mathbf{x}_{\lambda}}
 \def\SpectralGraphEdgeSet{\mathcal{E}_{\lambda}}
-\def\SpectralGraphWeightMat{\mathbf{W}_{\lambda}}
-\def\SpectralGraphWeight#1{w_{#1}}
-\def\IndexWeight{\IndexBand}
-\def\ParamSpectralGraph{\sigma_{\lambda}}
+
+\def\ParamSpecGraph{\sigma_{\lambda}}
 
 \def\DiffOpGraphBand{\mathbf{D}_{\SpectralGraph}}
 
-\def\GraphLaplacianSegment#1{\mathbf{L}^{(#1)}}
-\def\SpectralGraphLaplacian{\mathbf{L}_{\SpectralGraph}}
+\def\SpecGraphLaplacianSeg#1{\mathbf{L}^{(#1)}}
+\def\SpecGraphLaplacian{\mathbf{L}_{\SpectralGraph}}
 
 % 3.2 GASSTV
 \def\GASSTV{\text{GASSTV}}
