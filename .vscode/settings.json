@@ -155,6 +155,12 @@
 
     "latex-workshop.latex.recipes": [
         {
+            "name": "latexmk 🔄",
+            "tools": [
+                "latexmk"
+            ]
+        },
+        {
             // これがTeXstudioと同じ設定です (pdflatex -> bibtex -> pdflatex x2)
             "name": "Compile & View (TeXstudio Style)",
             "tools": [
@@ -162,12 +168,6 @@
                 "bibtex",
                 "pdflatex",
                 "pdflatex"
-            ]
-        },
-        {
-            "name": "latexmk 🔄",
-            "tools": [
-                "latexmk"
             ]
         },
         {

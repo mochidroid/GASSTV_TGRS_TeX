@@ -6,24 +6,28 @@
 		\begin{algorithmic}[1]
 			% \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 			% \renewcommand{\algorithmicensure}{\textbf{Output:}}
-			\REQUIRE $\HSIClean^{(0)}, \NoiseSparse^{(0)}, \NoiseStripe^{(0)},  \VarDualMatrix{1,\IndexBlock}^{(0)}(\IndexBlock = 1, \ldots \NumBlock), \VarDual{2}^{(0)}, \VarDual{3}^{(0)}$
-			\ENSURE $\HSIClean^{(\IndexAlg)}$
+			\REQUIRE $\HSIClean^{(0)}, \NoiseSparse^{(0)}, \NoiseStripe^{(0)}, \VarDual{1}^{(0)}, \VarDual{2}^{(0)}, \VarDual{3}^{(0)}, \VarDual{4}^{(0)}$
+			\ENSURE $\HSIClean^{(\IdxAlg)}$
 			\WHILE {A stopping criterion is not satisfied}
-    			\STATE $\HSIClean^{(\IndexAlg+1)} \leftarrow$ \\ $ \qquad  \Projection{\SetRange}\left( \HSIClean^{(\IndexAlg)} - \ParamStepsize{\HSIClean}  \bigl(\sum_{\IndexBlock=1}^{\NumBlock} \DiffOpBandT \DiffOpSpT \ExpantionOp{\IndexBlock}^{\top} \VarDualMatrix{1,\IndexBlock}^{(\IndexAlg)} + \VarDual{3}^{(\IndexAlg)} \bigr) \right)$;
-    			\STATE $\NoiseSparse^{(\IndexAlg+1)} \leftarrow \prox_{\ParamStepsize{\NoiseSparse}, \FuncIndicator{\BallSparse}} \left( \NoiseSparse^{(\IndexAlg)} - \ParamStepsize{\NoiseSparse} \VarDual{3}^{(\IndexAlg)} \right)$;
-                    \STATE $\NoiseStripe^{(\IndexAlg+1)} \leftarrow \prox_{\ParamStepsize{\NoiseStripe}, \FuncIndicator{\BallStripe}} \left( \NoiseStripe^{(\IndexAlg)} - \ParamStepsize{\NoiseStripe} \bigl( \DiffOpVertT \VarDual{2}^{(\IndexAlg)} + \VarDual{3}^{(\IndexAlg)} \bigr) \right)$;
-                    \STATE $\ResHSIClean \leftarrow 2\HSIClean^{(\IndexAlg+1)} - \HSIClean^{(\IndexAlg)}$;
-                    \STATE $\ResNoiseSparse \leftarrow 2\NoiseSparse^{(\IndexAlg+1)} - \NoiseSparse^{(\IndexAlg)}$;
-                    \STATE $\ResNoiseStripe \leftarrow 2\NoiseStripe^{(\IndexAlg+1)} - \NoiseStripe^{(\IndexAlg)}$;
-    			\FOR{$\IndexBlock = 1, \ldots, \NumBlock$}
-    			    \STATE $\VarDualMatrix{1,\IndexBlock}^{'} \leftarrow \VarDualMatrix{1,\IndexBlock}^{(\IndexAlg)} + \ParamStepsize{\VarDualMatrix{1, \IndexBlock}} \ExpantionOp{\IndexBlock} \DiffOpSp \DiffOpBand \ResHSIClean$;
-    			    \STATE $\VarDualMatrix{1,\IndexBlock}^{(\IndexAlg+1)} \leftarrow \VarDualMatrix{1,\IndexBlock}^{'} - \ParamStepsize{\VarDualMatrix{1, \IndexBlock}} \prox_{\ParamStepsize{\VarDualMatrix{1, \IndexBlock}}^{-1}, \| \cdot \|_{*}} \left(\ParamStepsize{\VarDualMatrix{1, \IndexBlock}}^{-1} \VarDualMatrix{1,\IndexBlock}^{'}\right) $;
-    		    \ENDFOR
-                    \STATE $\VarDual{2}^{(\IndexAlg+1)} \leftarrow \VarDual{2}^{(\IndexAlg)} + \ParamStepsize{\VarDual{2}} \DiffOpVert \ResNoiseStripe$;
-    			\STATE $\VarDual{3}^{'} \leftarrow \VarDual{3}^{(\IndexAlg)} + \ParamStepsize{\VarDual{3}} \left( \ResHSIClean + \ResNoiseSparse + \ResNoiseStripe \right)$;
-    			\STATE $\VarDual{3}^{(\IndexAlg+1)} \leftarrow \VarDual{3}^{'} - \ParamStepsize{\VarDual{3}} \Projection{\BallFidel} \left(\ParamStepsize{\VarDual{3}}^{-1} \VarDual{3}^{'}  \right)$;
-        % 		\STATE $\VarDual{2}^{(\IndexAlg+1)} \leftarrow \VarDual{2}^{'} - \ParamStepsize{\VarDual{2}} \prox_{\frac{1}{\ParamStepsize{\VarDual{2}}} \iota_{\BallFidel}} \left(\frac{1}{\ParamStepsize{\VarDual{2}}} \VarDual{2}^{'}  \right)$;
-    			\STATE $\IndexAlg \leftarrow \IndexAlg + 1$;
+				\STATE $\HSICleanTmp \leftarrow \DiffOpBandT \DiffOpSpT \VarDual{1}^{(\IdxAlg)} + \SpatialGraphIncidenceMat^{\top} \SpatialGraphWeightMat^{\top} \VarDual{2}^{(\IdxAlg)} + \VarDual{4}^{(\IdxAlg)}$
+    			\STATE $\HSIClean^{(\IdxAlg+1)} \leftarrow \Projection{\SetRange}\left(\HSIClean^{(\IdxAlg)} - \ParamStepsize{\HSIClean} (\BalanceParam \DiffOpBandT \SpecGraphLaplacian \DiffOpBand \HSIClean^{(\IdxAlg)} + \HSICleanTmp) \right)$;
+    			\STATE $\NoiseSparse^{(\IdxAlg+1)} \leftarrow \Projection{\BallSparse} \left( \NoiseSparse^{(\IdxAlg)} - \ParamStepsize{\NoiseSparse} \VarDual{4}^{(\IdxAlg)} \right)$;
+				\STATE $\NoiseStripe^{(\IdxAlg+1)} \leftarrow \Projection{\BallStripe} \left( \NoiseStripe^{(\IdxAlg)} - \ParamStepsize{\NoiseStripe} \bigl( \DiffOpVertT \VarDual{3}^{(\IdxAlg)} + \VarDual{4}^{(\IdxAlg)} \bigr) \right)$;
+				\STATE $\ResHSIClean \leftarrow 2\HSIClean^{(\IdxAlg+1)} - \HSIClean^{(\IdxAlg)}$;
+				\STATE $\ResNoiseSparse \leftarrow 2\NoiseSparse^{(\IdxAlg+1)} - \NoiseSparse^{(\IdxAlg)}$;
+				\STATE $\ResNoiseStripe \leftarrow 2\NoiseStripe^{(\IdxAlg+1)} - \NoiseStripe^{(\IdxAlg)}$;
+    			% \FOR{$\IndexBlock = 1, \ldots, \NumBlock$}
+    			%     \STATE $\VarDualMatrix{1,\IndexBlock}^{'} \leftarrow \VarDualMatrix{1,\IndexBlock}^{(\IdxAlg)} + \ParamStepsize{\VarDualMatrix{1, \IndexBlock}} \ExpantionOp{\IndexBlock} \DiffOpSp \DiffOpBand \ResHSIClean$;
+    			%     \STATE $\VarDualMatrix{1,\IndexBlock}^{(\IdxAlg+1)} \leftarrow \VarDualMatrix{1,\IndexBlock}^{'} - \ParamStepsize{\VarDualMatrix{1, \IndexBlock}} \prox_{\ParamStepsize{\VarDualMatrix{1, \IndexBlock}}^{-1}, \| \cdot \|_{*}} \left(\ParamStepsize{\VarDualMatrix{1, \IndexBlock}}^{-1} \VarDualMatrix{1,\IndexBlock}^{'}\right) $;
+    		    % \ENDFOR
+				\STATE $\VarDual{1}^{'} \leftarrow \VarDual{1}^{(\IdxAlg)} + \ParamStepsize{\VarDual{}} \DiffOpSp \DiffOpBand \ResHSIClean$;
+    			\STATE $\VarDual{1}^{(\IdxAlg+1)} \leftarrow \VarDual{1}^{'} - \ParamStepsize{\VarDual{}} \prox_{\ParamStepsize{\VarDual{}} \| \cdot \|_{1}} \left(\frac{1}{\ParamStepsize{\VarDual{}}} \VarDual{1}^{'}  \right)$;
+				\STATE $\VarDual{2}^{'} \leftarrow \VarDual{2}^{(\IdxAlg)} + \ParamStepsize{\VarDual{}} \SpatialGraphWeightMat \SpatialGraphIncidenceMat \ResHSIClean$;
+    			\STATE $\VarDual{2}^{(\IdxAlg+1)} \leftarrow \VarDual{2}^{'} - \ParamStepsize{\VarDual{}} \Projection{\BallSpatialGraph} \left(\frac{1}{\ParamStepsize{\VarDual{}}} \VarDual{2}^{'}  \right)$;
+				\STATE $\VarDual{3}^{(\IdxAlg+1)} \leftarrow \VarDual{3}^{(\IdxAlg)} + \ParamStepsize{\VarDual{}} \DiffOpVert \ResNoiseStripe$;
+    			\STATE $\VarDual{4}^{'} \leftarrow \VarDual{4}^{(\IdxAlg)} + \ParamStepsize{\VarDual{}} \left( \ResHSIClean + \ResNoiseSparse + \ResNoiseStripe \right)$;
+    			\STATE $\VarDual{4}^{(\IdxAlg+1)} \leftarrow \VarDual{4}^{'} - \ParamStepsize{\VarDual{}} \Projection{\BallFidel} \left(\frac{1}{\ParamStepsize{\VarDual{}}} \VarDual{4}^{'}  \right)$;
+    			\STATE $\IdxAlg \leftarrow \IdxAlg + 1$;
 			\ENDWHILE
 		\end{algorithmic}
 	\end{algorithm}

@@ -6,37 +6,73 @@ We propose a novel regularization function incorporating spatial and spectral gr
 \subsection{Spectral Graph-based Weighted Difference Operator}
 \label{subsec:WeightedSpectralDiff}
 In constructing the spectral graph from a noisy HS image, we assume that when the HS image is segmented, each segment contains similar spectral characteristics. 
-Based on this assumption, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. Next, we divide the guide image into $\NumSegment$ segments $\Segment{\IndexSegment} (\IndexSegment = 1, \dots, \NumSegment)$ reflecting the spatial structure. Let $\SetIndice := {(\IndexVert, \IndexHori) | 1 \leq \IndexVert \leq \NumVert, 1 \leq \IndexHori \leq \NumHori}$ be the set of spatial indices. Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain the segments $\{\Segment{\IndexSegment}\}_{\IndexSegment=1}^{\NumSegment}$ by solving the following minimization problem:
+Based on this assumption, we first segment the noisy HS image into $\NumSeg$ regions and then construct a spectral graph for each segment using its representative spectrum. To obtain the segments, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. 
+% Let Ω := {(i,j)|1 ≤ i ≤ N_1, 1 ≤ j ≤ N_2} be the set of spatial indices. 
+Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain $\NumSeg$ segments $\{\Segment{\IdxSeg}\}_{\IdxSeg=1}^{\NumSeg}$ by solving the following minimization problem:
 \begin{equation}
     \label{eq:Segmentation}
-    \min_{\{\Segment{\IndexSegment}\} \{ \Centroid{\IndexSegment} \}} \sum_{\IndexSegment = 1}^{\NumSegment} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \| \GuideImage(\IndexVert, \IndexHori) - \Centroid{\IndexSegment} \|_{2}^{2},
+    \min_{\{\Segment{\IdxSeg}\} \{ \Centroid{\IdxSeg} \}} \sum_{\IdxSeg = 1}^{\NumSeg} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IdxSeg}} \| \GuideImage(\IndexVert, \IndexHori) - \Centroid{\IdxSeg} \|_{2}^{2},
 \end{equation}
-where $\Centroid{\IndexSegment}$ represents the centroid of the $\IndexSegment$-th segment.
-
-
-Based on the obtained segments, we compute a representative spectrum for each segment. For each segment $\Segment{\IndexSegment}$, we define the representative spectrum $\SpectrumRep{\IndexSegment} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
+where $\Centroid{\IdxSeg}$ represents the centroid of the $\IdxSeg$-th segment.
+% Based on this assumption, we compute the guide image $\GuideImage$ that reflects the spatial structure of the target HS image according to Eq.~\eqref{eq:GuideImage}. Next, we divide the guide image into $\NumSeg$ segments $\Segment{\IdxSeg} (\IdxSeg = 1, \dots, \NumSeg)$ reflecting the spatial structure. Let $\SetIndice := {(\IndexVert, \IndexHori) | 1 \leq \IndexVert \leq \NumVert, 1 \leq \IndexHori \leq \NumHori}$ be the set of spatial indices. Using the k-means clustering algorithm~\cite{Arthur2006kmeans} on the guide image $\GuideImage$, we obtain the segments $\{\Segment{\IdxSeg}\}_{\IdxSeg=1}^{\NumSeg}$ by solving the following minimization problem:
+% \begin{equation}
+%     \label{eq:Segmentation}
+%     \min_{\{\Segment{\IdxSeg}\} \{ \Centroid{\IdxSeg} \}} \sum_{\IdxSeg = 1}^{\NumSeg} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IdxSeg}} \| \GuideImage(\IndexVert, \IndexHori) - \Centroid{\IdxSeg} \|_{2}^{2},
+% \end{equation}
+% where $\Centroid{\IdxSeg}$ represents the centroid of the $\IdxSeg$-th segment.
+For each segment $\Segment{\IdxSeg}$, we compute a representative spectrum $\SpectrumRep{\IdxSeg} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
 \begin{equation}
     \label{eq:SpectrumRep}
-    \SpectrumRep{\IndexSegment} := \frac{1}{|\Segment{\IndexSegment}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IndexSegment}} \HSIObsv(\IndexVert, \IndexHori, :),
+    \SpectrumRep{\IdxSeg} := \frac{1}{|\Segment{\IdxSeg}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IdxSeg}} \HSIObsv(\IndexVert, \IndexHori, :),
 \end{equation}
 where $\HSIObsv(\IndexVert, \IndexHori, :)$ denotes the spectral vector with length $\NumBand$ at location $(\IndexVert, \IndexHori)$. By averaging the spectral vectors within each segment, the spectra of the segment can be effectively characterized while reducing noise.
+% Based on the obtained segments, we compute a representative spectrum for each segment. For each segment $\Segment{\IdxSeg}$, we define the representative spectrum $\SpectrumRep{\IdxSeg} \in \RealSpace{\NumBand}$ by averaging the spectral vectors of the noisy HS image within the segment:
+% \begin{equation}
+%     \label{eq:SpectrumRep}
+%     \SpectrumRep{\IdxSeg} := \frac{1}{|\Segment{\IdxSeg}|} \sum_{(\IndexVert, \IndexHori) \in \Segment{\IdxSeg}} \HSIObsv(\IndexVert, \IndexHori, :),
+% \end{equation}
+% where $\HSIObsv(\IndexVert, \IndexHori, :)$ denotes the spectral vector with length $\NumBand$ at location $(\IndexVert, \IndexHori)$. By averaging the spectral vectors within each segment, the spectra of the segment can be effectively characterized while reducing noise.
 
 
-Following the calculation of the representative spectra, we construct a spectral graph for each segment. To explicitly capture spectral variations including smoothness and spectral jumps, we design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. 
-First, for the $\IndexSegment$-th segment, we calculate the spectral difference vector $\VecSpectralDiff{\IndexSegment} \in \RealSpace{\NumBand}$, where the $\IndexSpecNodeOne$-th element $\VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne}$ is defined as:
+Following the calculation of the representative spectra, we construct a spectral graph for each segment to explicitly capture spectral variations including smoothness and spectral jumps. We design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. First, for the $\IdxSeg$-th segment, we calculate the spectral difference vector $\VecSpecDiff{\IdxSeg} \in \RealSpace{\NumBand}$, where the $\IdxSpecNodeOne$-th element $\VecSpecDiff{\IdxSeg, \IdxSpecNodeOne}$ is defined as:
 \begin{equation}
     \label{eq:SpectralDiffVec}
-    \VecSpectralDiff{\IndexSegment, \IndexSpecNodeOne} := \SpectrumRep{\IndexSegment, \IndexSpecNodeOne+1} - \SpectrumRep{\IndexSegment, \IndexSpecNodeOne}
-    , \quad (1 \leq \IndexSpecNodeOne <  \NumBand -1)
+    \VecSpecDiff{\IdxSeg, \IdxSpecNodeOne} := \SpectrumRep{\IdxSeg, \IdxSpecNodeOne+1} - \SpectrumRep{\IdxSeg, \IdxSpecNodeOne}
+    , \quad (1 \leq \IdxSpecNodeOne \leq \NumBand -1)
 \end{equation}
-where $\SpectrumRep{\IndexSegment, \IndexSpecNodeOne}$ is the $\IndexSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IndexSegment}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IndexSegment, \NumBand} = 0$).
-Next, we define a graph $\mathcal{G}^{(k)}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $M$-nearest neighbor ($M$-NN) strategy based on the distance between the gradient values. Let $\mathcal{N}_p$ denote the set of the $M$ nearest neighbors of the node $p$ determined by the Euclidean distance $|h_{k, p} - h_{k, q}|$. The weight $w_{p,q}^{(k)}$ is defined as:$$w_{p,q}^{(k)} :=
-\begin{cases}
-\exp\left( - \frac{(h_{k, p} - h_{k, q})^2}{2\sigma_{\lambda}^2} \right) & \text{if } q \in \mathcal{N}_p \text{ or } p \in \mathcal{N}_q, \\
-0 & \text{otherwise},
-\end{cases} \quad (1 \le p < q \le N_3-1), \eqno{(19)}$$where $\sigma_{\lambda}$ is a scaling parameter and $M$ controls the sparsity of the graph.
+where $\SpectrumRep{\IdxSeg, \IdxSpecNodeOne}$ is the $\IdxSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IdxSeg}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IdxSeg, \NumBand} = 0$). Next, we define a graph $\SpectralGraphSegment{\IdxSeg}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $\NumNearestNeighbor$-nearest neighbor ($\NumNearestNeighbor$-NN) strategy based on the distance between the gradient values. Let $\IdcNN{\IdxSeg}$ denote the set of the $\NumNearestNeighbor$ nearest neighbors of the node $\IdxSpecNodeOne$ determined by the Euclidean distance $| \VecSpecDiff{\IdxSeg, \IdxSpecNodeOne} - \VecSpecDiff{\IdxSeg, \IdxSpecNodeTwo} |$. The weight $\SpecGraphWeightSeg{\IdxSeg}{\IdxSpecNodeOne, \IdxSpecNodeTwo}$ is defined as: for $1 \leq \IdxSpecNodeOne < \IdxSpecNodeTwo \leq \NumBand-1$,
+\begin{equation}
+    \label{eq:SpectralGraphWeight}
+    \SpecGraphWeightSeg{\IdxSeg}{\IdxSpecNodeOne, \IdxSpecNodeTwo} :=
+    \begin{cases}
+        \exp\left( - \frac{(\VecSpecDiff{\IdxSeg, \IdxSpecNodeOne} - \VecSpecDiff{\IdxSeg, \IdxSpecNodeTwo})^2}{2 \ParamSpecGraph^{2}} \right) & \text{if } \IdxSpecNodeTwo \in \IdcNN{\IdxSeg} \text{ or } \IdxSpecNodeOne \in \IdcNN{\IdxSeg}, \\
+        0 & \text{otherwise},
+    \end{cases}
+\end{equation}
+where $\ParamSpecGraph$ is a scaling parameter.
 
-The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed as $L^{(k)} := \mathcal{D}^{(k)} - W^{(k)}$. Finally, we extend these local Laplacians to the global spectral graph Laplacian $\mathbf{L}_{\mathcal{G}_{\lambda}} \in \mathbb{R}^{N \times N}$. Let $l_n \in \{1, \dots, K\}$ denote the segment label of the $n$-th spatial pixel. The global matrix is constructed as a block diagonal matrix:$$\mathbf{L}_{\mathcal{G}_{\lambda}} := \text{diag}(L^{(l_1)}, L^{(l_2)}, \dots, L^{(l_{N_1 N_2})}). \eqno{(20)}$$
+The Laplacian matrix $\SpecGraphLaplacianSeg{\IdxSeg} \in \RealSpace{\NumBand \times \NumBand}$ is then computed as $\SpecGraphLaplacianSeg{\IdxSeg} := \SpecGraphDegreeSeg{\IdxSeg} - \SpecGraphWeightSegMat{\IdxSeg}$. Finally, we extend these local Laplacians to the global spectral graph Laplacian $\SpecGraphLaplacian \in \RealSpace{\NumAll \times \NumAll}$. Let $\SegLabel{\IdxSpecNodeOne} \in {1, \ldots, \NumSeg}$ denote the segment label of the $\IdxSpecNodeOne$-th spatial pixel. The global matrix is constructed as a block diagonal matrix:
+\begin{equation}
+    \label{eq:SpecGraphLaplacian}
+    \SpecGraphLaplacian := \text{diag}(\SpecGraphLaplacianSeg{\SegLabel{1}}, \SpecGraphLaplacianSeg{\SegLabel{2}}, \dots, \SpecGraphLaplacianSeg{\SegLabel{\NumVert \NumHori}}).
+\end{equation}
+
+
+% Following the calculation of the representative spectra, we construct a spectral graph for each segment. To explicitly capture spectral variations including smoothness and spectral jumps, we design the graph nodes to represent the spectral adjacent differences and connect the nodes exhibiting similar variations. 
+% First, for the $\IdxSeg$-th segment, we calculate the spectral difference vector $\VecSpecDiff{\IdxSeg} \in \RealSpace{\NumBand}$, where the $\IdxSpecNodeOne$-th element $\VecSpecDiff{\IdxSeg, \IdxSpecNodeOne}$ is defined as:
+% \begin{equation}
+%     \label{eq:SpectralDiffVec}
+%     \VecSpecDiff{\IdxSeg, \IdxSpecNodeOne} := \SpectrumRep{\IdxSeg, \IdxSpecNodeOne+1} - \SpectrumRep{\IdxSeg, \IdxSpecNodeOne}
+%     , \quad (1 \leq \IdxSpecNodeOne <  \NumBand -1)
+% \end{equation}
+% where $\SpectrumRep{\IdxSeg, \IdxSpecNodeOne}$ is the $\IdxSpecNodeOne$-th element of the representative spectrum $\SpectrumRep{\IdxSeg}$. Here, we assume the Neumann boundary condition (i.e., $\SpectrumRep{\IdxSeg, \NumBand} = 0$).
+% Next, we define a graph $\mathcal{G}^{(k)}$ where the nodes correspond to the difference indices. To construct the edges, we employ the $M$-nearest neighbor ($M$-NN) strategy based on the distance between the gradient values. Let $\mathcal{N}_p$ denote the set of the $M$ nearest neighbors of the node $p$ determined by the Euclidean distance $|h_{k, p} - h_{k, q}|$. The weight $w_{p,q}^{(k)}$ is defined as:$$w_{p,q}^{(k)} :=
+% \begin{cases}
+% \exp\left( - \frac{(h_{k, p} - h_{k, q})^2}{2\sigma_{\lambda}^2} \right) & \text{if } q \in \mathcal{N}_p \text{ or } p \in \mathcal{N}_q, \\
+% 0 & \text{otherwise},
+% \end{cases} \quad (1 \le p < q \le N_3-1), \eqno{(19)}$$where $\sigma_{\lambda}$ is a scaling parameter and $\NumNearestNeighbor$ controls the sparsity of the graph.
+
+% The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed as $L^{(k)} := \mathcal{D}^{(k)} - W^{(k)}$. Finally, we extend these local Laplacians to the global spectral graph Laplacian $\mathbf{L}_{\mathcal{G}_{\lambda}} \in \mathbb{R}^{N \times N}$. Let $l_n \in \{1, \dots, K\}$ denote the segment label of the $n$-th spatial pixel. The global matrix is constructed as a block diagonal matrix:$$\mathbf{L}_{\mathcal{G}_{\lambda}} := \text{diag}(L^{(l_1)}, L^{(l_2)}, \dots, L^{(l_{N_1 N_2})}). \eqno{(20)}$$
 
 
 
@@ -45,7 +81,7 @@ The Laplacian matrix $L^{(k)} \in \mathbb{R}^{N_3 \times N_3}$ is then computed 
 Incorporating both the spatial graph $\SpatialGraph$ and the spectral graph $\SpectralGraph$, our \textit{Graph-Aided Spatio-Spectral Total Variation} (GASSTV) is defined as follows:
 \begin{align}
     \label{eq:GASSTV}
-    \GASSTV(\HSIClean) &:= \| \DiffOpSp \DiffOpBand \HSIClean\|_{1} + \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpectralGraphLaplacian \DiffOpBand \HSIClean, \notag \\
+    \GASSTV(\HSIClean) &:= \| \DiffOpSp \DiffOpBand \HSIClean\|_{1} + \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpecGraphLaplacian \DiffOpBand \HSIClean, \notag \\
     &\text{ s.t. } \| \SpatialGraphWeightMat \SpatialGraphIncidenceMat \HSIClean \|_{1} \leq \RadiusGraphSp,
 \end{align}
 where $\DiffOpSp := \begin{pmatrix} \DiffOpVertT & \DiffOpHoriT \end{pmatrix}^{\top} \in \RealSpace{2 \NumAll \times \NumAll}$ is the spatial difference operator, $\BalanceParam$ and $\RadiusGraphSp$ are the parameters.
@@ -115,7 +151,7 @@ The first constraint characterizes sparse noise $\NoiseSparse$ with the zero-cen
 
 Using the first, second, and fourth constraints instead of adding terms to the objective function makes it much easier to adjust the parameters $\RadiusSparse$, $\RadiusStripe$, and $\RadiusFidel$. This is because by expressing multiple terms as constraints, rather than adding them to the objective function, the hyperparameters associated with each term are converted to be independent of each other, and appropriate parameters can be determined without interdependence. Such advantage has been addressed, e.g., in~\cite{Afonso2011Constraint, Chierchia2015Constraint, Ono2015Constraint, Ono2017Constraint, Ono2019Constraint}.
 
-% \input{algo_PPDS}
+\input{./src_fig/algo_PPDS.tex}
 
 
 % \input{tab_results}
@@ -123,32 +159,48 @@ Using the first, second, and fourth constraints instead of adding terms to the o
 \subsection{Optimization}
 \label{subsec:Optim}
 We develop an efficient solver for Prob.~\eqref{prob:OptimProb} based on P-PDS~\cite{Pock2011PPDS}.
-% Using the indicator functions, we rewrite Prob.~\eqref{prob:OptimProb} into an equivalent form:
-% \begin{align}
-%     \label{prob:OptimProb2PPDS}
-%     \min_{
-%     \substack{
-%         \HSIClean, \NoiseSparse, \VarDual{1}, \VarDual{2}, \\ 
-%         \VarDual{3}, \VarDual{4}, \VarDual{5}}} \:
-%     & \|\VarDual{1} \|_{1} + \BalanceParamOne \|\VarDual{2} \|_{1} + \BalanceParamTwo \|\VarDual{3} \|_{1} \nonumber \\
-%     & + \FuncIndicator{\BallFidel} (\HSIClean + \NoiseSparse) + \FuncIndicator{\BallSparse} (\VarDual{4}) + \FuncIndicator{\SetRange} (\VarDual{5})\nonumber \\
-%     & \mathrm{s.t.} \:
-%     \begin{cases} 
-%     \VarDual{1} = \DiffOpSp \DiffOpBand \HSIClean, \\
-%     \VarDual{2} = \DiffOpGraphSp \HSIClean, \\
-%     \VarDual{3} = \DiffOpGraphBand \HSIClean, \\
-%     \VarDual{4} = \NoiseSparse, \\
-%     \VarDual{5} = \HSIClean.
-%     \end{cases}
-% \end{align}
 Using the indicator functions, we rewrite Prob.~\eqref{prob:OptimProb} into an equivalent form:
 \begin{align}
     \label{prob:OptimProb2PPDS}
-    \min_{\HSIClean, \NoiseSparse} 
-    & \|\DiffOpSp \DiffOpBand \HSIClean \|_{1} + \BalanceParamOne \|\DiffOpGraphSp \HSIClean \|_{1} + \BalanceParamTwo \|\DiffOpGraphBand \HSIClean \|_{1} \notag \\ 
-    & + \FuncIndicator{\BallFidel} (\HSIClean + \NoiseSparse) + \FuncIndicator{\BallSparse} (\NoiseSparse) + \FuncIndicator{\SetRange} (\HSIClean).
+    \min_{
+    \substack{
+        \HSIClean, \NoiseSparse, \NoiseStripe, \\
+        \VarDual_{1}, \VarDual_{2}, \VarDual_{3}, \VarDual_{4}}} \:
+    & \|\VarDual_{1} \|_{1} + \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpecGraphLaplacian \DiffOpBand \HSIClean + \FuncIndicator{\BallSpatialGraph} (\VarDual_{2}) \notag \\
+    & + \FuncIndicator{\BallSparse} (\NoiseSparse) + \FuncIndicator{\BallStripe} (\NoiseStripe) + \FuncIndicator{\SetZero} (\VarDual_{3}) \notag \\
+    & + \FuncIndicator{\BallFidel} (\VarDual_{4}) + \FuncIndicator{\SetRange} (\HSIClean) \notag \\
+    & \mathrm{s.t.} \:
+    \begin{cases} 
+    \VarDual_{1} = \DiffOpSp \DiffOpBand \HSIClean, \\
+    \VarDual_{2} = \SpatialGraphWeightMat \SpatialGraphIncidenceMat \HSIClean, \\
+    \VarDual_{3} = \DiffOpVert \NoiseStripe, \\
+    \VarDual_{4} = \HSIClean + \NoiseSparse + \NoiseStripe. \\
+    \end{cases}
 \end{align}
-Prob.~\eqref{prob:OptimProb2PPDS} can be solved by P-PDS~\cite{Pock2011PPDS} given by Alg. 1.
+Let $\VarPrimal := (\HSIClean^{\top}, \NoiseSparse^{\top}, \NoiseStripe^{\top})^{\top}$ be the primal variable and $\VarDual := (\VarDual_{1}^{\top} \VarDual_{2}^{\top} \VarDual_{3}^{\top} \VarDual_{4}^{\top})^{\top}$ be the dual variables. Then, by defining,
+\begin{align}
+	\label{eq:FuncMapping}
+    & \FuncSmooth (\VarPrimal) := \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpecGraphLaplacian \DiffOpBand \HSIClean, \notag \\
+	& \FuncPrimal (\VarPrimal) := \FuncIndicator{\SetRange} (\HSIClean) + \FuncIndicator{\BallSparse} (\NoiseSparse) + \FuncIndicator{\BallStripe} (\NoiseStripe), \nonumber \\
+	& \FuncDual (\VarDual) := \|\VarDual_{1} \|_{1} + \FuncIndicator{\BallSpatialGraph} (\VarDual_{2}) + \FuncIndicator{\SetZero} (\VarDual_{3}) + \FuncIndicator{\BallFidel} (\VarDual_{4}), \notag \\
+    & \LinOpPDS := 
+    \begin{pmatrix}
+        \DiffOpSp \DiffOpBand & \mathbf{0} & \mathbf{0} \\
+        \SpatialGraphWeightMat \SpatialGraphIncidenceMat & \mathbf{0} & \mathbf{0} \\
+        \mathbf{0} & \mathbf{0} & \DiffOpVert \\
+        \mathbf{I} & \mathbf{I} & \mathbf{I}
+    \end{pmatrix},
+\end{align}
+Prob.~\eqref{prob:OptimProb2PPDS} is reduced to Prob.~\eqref{prob:convex_optim_prob}. 
+Therefore, PDS is applicable to Prob.~\eqref{prob:OptimProb2PPDS}.
+% Using the indicator functions, we rewrite Prob.~\eqref{prob:OptimProb} into an equivalent form:
+% \begin{align}
+%     \label{prob:OptimProb2PPDS}
+%     \min_{\HSIClean, \NoiseSparse, \NoiseStripe} 
+%     & \| \DiffOpSp \DiffOpBand \HSIClean\|_{1} + \frac{\BalanceParam}{2} (\DiffOpBand \HSIClean)^{\top} \SpecGraphLaplacian \DiffOpBand \HSIClean \notag \\
+%     & + \FuncIndicator{\BallSpatialGraph} (\SpatialGraphWeightMat \SpatialGraphIncidenceMat \HSIClean) + \FuncIndicator{\BallFidel} (\HSIClean + \NoiseSparse) + \FuncIndicator{\BallSparse} (\NoiseSparse) + \FuncIndicator{\SetRange} (\HSIClean).
+% \end{align}
+Prob.~\eqref{prob:OptimProb2PPDS} can be solved by PDS~\cite{Pock2011PPDS} given by Alg. 1.
 The proximity operator of $\| \cdot \|_{1}$ is calculated by
 \begin{equation}
     \label{eq:ProxL1norm}
@@ -173,11 +225,14 @@ The projections onto $\BallFidel$ and $\SetRange$ are calculated by
     \end{cases}
 \end{align}
 The projection onto $\BallSparse$ can be efficiently computed by a fast $\ell_{1}$-ball projection algorithm~\cite{Condat2016L1ball}.
-% According to \cite{Naganuma2023PPDS}, we set the stepsize parameters as
-% \begin{align}
-%     \label{eq:StepsizeParams}
-%     & \ParamStepsize{\HSIClean} = \frac{1}{53}, \: \ParamStepsize{\NoiseSparse} = 1, \nonumber \\
-%     & \ParamStepsize{\VarDual{1}} = \ParamStepsize{\VarDual{2}} = \ParamStepsize{\VarDual{3}} = \ParamStepsize{\VarDual{4}} = \ParamStepsize{\VarDual{5}} = \frac{1}{2}.
-% \end{align}
-According to \cite{Naganuma2023PPDS}, we set the stepsize parameters as
-$\ParamStepsize{\HSIClean} = \frac{1}{53}$, $\ParamStepsize{\NoiseSparse} = 1$, $\ParamStepsize{\VarDual{1}} = \ParamStepsize{\VarDual{2}} = \ParamStepsize{\VarDual{3}} = \ParamStepsize{\VarDual{4}} = \ParamStepsize{\VarDual{5}} = \frac{1}{2}$.
+According to \cite{Naganuma2023PPDS}, we set the stepsize parameters as 
+\begin{align}
+    \label{eq:StepsizeParams}
+    & \ParamStepsize{\HSIClean} = \frac{1}{49 + 2 \BalanceParam \max_{\IdxSeg} \MaxSingularValue{\SpecGraphLaplacianSeg{\IdxSeg}}}, \notag \\
+    & \ParamStepsize{\NoiseSparse} = 1, \: 
+    \ParamStepsize{\NoiseStripe} = \frac{1}{5}, \:
+    \ParamStepsize{\VarDual{}} = \frac{1}{3},
+\end{align}
+where $\MaxSingularValue{\SpecGraphLaplacianSeg{\IdxSeg}}$ is the maximum singular value of the Laplacian matrix of the segment $\IdxSeg$.
+
+% 長沼のやつを拡張し、condition.~()を満たすステップサイズは以下のとおりである。みたいに書こう

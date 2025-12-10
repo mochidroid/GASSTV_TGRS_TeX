@@ -59,90 +59,36 @@ The proximity operator of $\FuncIndicator{\SetConvex}$ is equivalent to the proj
 \end{equation}
 
 
-\subsection{Preconditoned Primal-Dual Splitting Method (P-PDS)}
-\label{subsec:P-PDS}
-The standard PDS~\cite{Chambolle2011PDS, Condat2013PDS} and P-PDS~\cite{Pock2011PPDS}, on which our algorithm is based, are efficient algorithms for solving the following generic form of convex optimization problems:
-\begin{align}
+\subsection{Primal-Dual Splitting Method (PDS)}
+\label{subsec:PDS}
+The PDS~\cite{Chambolle2011PDS, Condat2013PDS}, on which our algorithm is based, is an efficient algorithm for solving the following generic form of convex optimization problems:
+\begin{equation}
 	\label{prob:convex_optim_prob}
-	\min_{\substack{\VarPrimal{1}, \ldots, \VarPrimal{\NumVarPrimal}, \\ 
-			\VarDual{1}, \ldots, \VarDual{\NumVarDual}}} 
-	& \sum_{\IndexPrimal=1}^{\NumVarPrimal} \FuncPrimal{\IndexPrimal} (\VarPrimal{\IndexPrimal}) + \sum_{\IndexDual=1}^{\NumVarDual} \FuncDual{\IndexDual} (\VarDual{\IndexDual}) \nonumber \\ 
-	& \mathrm{s.t.} \:
-	\begin{cases} 
-		\VarDual{1} = \sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{1,\IndexPrimal} \VarPrimal{\IndexPrimal}, \\ 
-		\vdots \\ 
-		\VarDual{\NumVarDual} = \sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{\NumVarDual,\IndexPrimal} \VarPrimal{\IndexPrimal}, 
-	\end{cases}
-\end{align}
-where $\FuncPrimal{\IndexPrimal} (\IndexPrimal = 1, \ldots, \NumVarPrimal)$ and $\FuncDual{\IndexDual} (\IndexDual = 1, \ldots, \NumVarDual)$ are lower semi-continuous proper convex functions, $\VarPrimal{\IndexPrimal} \in \RealSpace{\DimVarPrimal{\IndexPrimal}} \: (\IndexPrimal = 1, \dots, \NumVarPrimal)$ are primal variables, $\VarDual{\IndexDual} \in \RealSpace{\DimVarDual{\IndexDual}} \: (\IndexDual = 1, \dots, \NumVarDual)$ are dual variables, and $\LinOpPPDS{\IndexDual,\IndexPrimal} \in \RealSpace{\DimVarDual{\IndexDual} \times  \DimVarPrimal{\IndexPrimal}}$ ($i = 1, \ldots, \NumVarPrimal$, $j = 1, \ldots, \NumVarDual$) are linear operators.
+	\min_{\VarPrimal, \VarDual} \FuncSmooth (\VarPrimal) + \FuncPrimal (\VarPrimal) + \FuncDual (\VarDual) \text{ s.t. } \VarDual = \LinOpPDS \VarPrimal, 
+\end{equation}
+where $\FuncPrimal : \RealSpace{\DimVarPrimal} \to (-\infty, +\infty]$ and $\FuncDual : \RealSpace{\DimVarDual} \to (-\infty, +\infty]$ are proper lower semi-continuous convex functions, $\LinOpPDS \in \RealSpace{\DimVarDual \times  \DimVarPrimal}$ is a linear operator, $\FuncSmooth$ is differentiable and its gradient $\nabla \FuncSmooth$ is $\LipsitzConst$-Lipschitz continuous for some real constant $\LipsitzConst > 0$, i.e., $\| \nabla \FuncSmooth(\VarPrimal_{1}) - \nabla \FuncSmooth(\VarPrimal_{2}) \| \leq \LipsitzConst \| \VarPrimal_{1} - \VarPrimal_{2} \|$ for any $\VarPrimal_{1}, \VarPrimal_{2} \in \RealSpace{\DimVarPrimal}$.
 
 These methods solve Prob.~\eqref{prob:convex_optim_prob} by the following iterative procedures:
 \begin{equation}
-	\label{algo:P-PDS}
+	\label{algo:PDS}
 	\AlgoLfloor{
 		\begin{array}{l}
-			\VarPrimal{1}^{(\IndexAlg+1)} 
-			\leftarrow \prox_{\ScalarStepsize{1, 1}, \FuncPrimal{1}}
-			\left( \VarPrimal{1}^{(\IndexAlg)} - \ScalarStepsize{1,1} \bigl( \sum_{\IndexDual=1}^{\NumVarDual} \LinOpPPDS{\IndexDual,1}^{\top} \VarDual{\IndexDual}^{(\IndexAlg)} \bigr) \right), \\
-			\vdots \\
-			\VarPrimal{\NumVarPrimal}^{(\IndexAlg+1)} 
-			\leftarrow \prox_{\ScalarStepsize{1, \NumVarPrimal}, \FuncPrimal{\NumVarPrimal}}
-			\left( \VarPrimal{\NumVarPrimal}^{(\IndexAlg)} - \ScalarStepsize{1, \NumVarPrimal} \bigl( \sum_{\IndexDual=1}^{\NumVarDual} \LinOpPPDS{\IndexDual,\NumVarPrimal}^{\top} \VarDual{\IndexDual}^{(\IndexAlg)} \bigr) \right), \\
-			\VarPrimal{\IndexPrimal}^{'} = 2\VarPrimal{\IndexPrimal}^{(\IndexAlg+1)} - \VarPrimal{\IndexPrimal}^{(\IndexAlg)} \: (\forall \IndexPrimal = 1, \ldots, \NumVarPrimal), \\
-			\VarDual{1}^{(\IndexAlg+1)}
-			\leftarrow \prox_{\ScalarStepsize{2, 1}, \FuncDual{1}^{*}}
-			\left( \VarDual{1}^{(\IndexAlg)} - \ScalarStepsize{2, 1}
-			\bigl(\sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{1,\IndexPrimal} \VarPrimal{\IndexPrimal}^{'} \bigr) \right), \\
-			\vdots \\
-			\VarDual{\NumVarDual}^{(\IndexAlg+1)}
-			\leftarrow \prox_{\ScalarStepsize{2, \NumVarDual}, \FuncDual{\NumVarDual}^{*}}
-			\left( \VarDual{\NumVarDual}^{(\IndexAlg)} - \ScalarStepsize{2, \NumVarDual}
-			\bigl(\sum_{\IndexPrimal=1}^{\NumVarPrimal} \LinOpPPDS{\NumVarDual,\IndexPrimal}  \VarPrimal{\IndexPrimal}^{'} \bigr) \right), \\
+			\VarPrimal^{(\IdxAlg+1)} 
+			\leftarrow \prox_{\ScalarStepsize{1}, \FuncPrimal}
+			\left( \VarPrimal^{(\IdxAlg)} - \ScalarStepsize{1} \bigl( \nabla \FuncSmooth(\VarPrimal^{(\IdxAlg)}) + \LinOpPDS^{\top} \VarDual^{(\IdxAlg)} \bigr) \right), \\
+			\VarDual^{(\IdxAlg+1)}
+			\leftarrow \prox_{\ScalarStepsize{2}, \FuncDual^{*}}
+			\left( \VarDual^{(\IdxAlg)} - \ScalarStepsize{2}
+			\LinOpPDS \bigl(2\VarPrimal^{(\IdxAlg+1)} - \VarPrimal^{(\IdxAlg)} \bigr) \right), \\
 		\end{array}
 	}.
 \end{equation}
-where $\ScalarStepsize{1, \IndexPrimal}(\IndexPrimal = 1, \dots, \NumVarPrimal)$ and $\ScalarStepsize{2, \IndexDual}(\IndexDual = 1, \dots, \NumVarDual)$ are the stepsize parameters.
-
-
-Here, we introduce the convergence property of P-PDS.
-For the convergence analysis, we define the diagonal matrices of the stepsize parameters as follows:
-\begin{align}
-	\label{eq:StepsizeMatrices}
-	\MatrixStepsize{1} & = \diag(\ScalarStepsize{1, 1} \MatrixIdentity_{\DimVarPrimal{1}}, \ldots, \ScalarStepsize{1, \NumVarPrimal} \MatrixIdentity_{\DimVarPrimal{\NumVarPrimal}}), \notag \\
-	\MatrixStepsize{2} & = \diag(\ScalarStepsize{2, 1} \MatrixIdentity_{\DimVarDual{1}}, \ldots, \ScalarStepsize{2, \NumVarDual} \MatrixIdentity_{\DimVarDual{\NumVarDual}}),
-\end{align}
-where $\MatrixIdentity_{\DimVarPrimal{\IndexPrimal}} \in \RealSpace{\DimVarPrimal{\IndexPrimal} \times \DimVarPrimal{\IndexPrimal}}$ and $\MatrixIdentity_{\DimVarDual{\IndexDual}} \in \RealSpace{\DimVarDual{\IndexDual} \times \DimVarDual{\IndexDual}}$ are the identity matrices. We define the linear operator including $\LinOpPPDS{\IndexDual,\IndexPrimal}$ as
+where $\ScalarStepsize{1}$ and $\ScalarStepsize{2}$ are the stepsize parameters, satisfying
 \begin{equation}
-	\label{eq:LinearOperator}
-	\LinOpPPDS{} := 
-	\begin{bmatrix}
-		\LinOpPPDS{1, 1} & \cdots & \LinOpPPDS{1, \NumVarPrimal} \\
-		\vdots & \ddots & \vdots \\
-		\LinOpPPDS{\NumVarDual, 1} & \cdots & \LinOpPPDS{\NumVarDual, \NumVarPrimal}
-	\end{bmatrix}.
+	\label{ieq:PDS_ConvergenceCondition}
+	\ScalarStepsize{1} \ScalarStepsize{2} \MaxSingularValue{\LinOpPDS^{\top}\LinOpPDS} < 1,
 \end{equation}
-Then, we state the convergence property of P-PDS.
-\begin{thm}
-	\label{thm:ConvergenceP-PDS}
-	[64, Theorem 1] Let $\MatrixStepsize{1}$ and $\MatrixStepsize{2}$ be symmetric and positive definite matrices satisfying
-	\begin{equation}
-		\label{ieq:ConvergenceCondition}
-		\OpNormSq{\MatrixStepsize{1}^{\frac{1}{2}} \circ \LinOpPPDS{} \circ \MatrixStepsize{2}^{\frac{1}{2}}} < 1.
-	\end{equation}
-	Then, the sequence $\lbrace \VarPrimal{1}^{(\IndexAlg)}, \ldots, \VarPrimal{\NumVarPrimal}^{(\IndexAlg)}, \VarDual{1}^{(\IndexAlg)}, \ldots, \VarDual{\NumVarDual}^{(\IndexAlg)} \rbrace$ generated by the procedure in \eqref{algo:P-PDS} converges to an optimal solution of Prob.~\eqref{prob:convex_optim_prob}.
-\end{thm}
-
-The standard PDS needs to adjust the appropriate stepsize parameters to satisfy the convergence conditions~\eqref{ieq:ConvergenceCondition}. On the other hand, P-PDS can automatically determine the stepsize parameters that guarantee convergence~\cite{Pock2011PPDS,Naganuma2023PPDS}. According to~\cite{Pock2011PPDS}, we summarize the stepsize design and their convergence property.
-\begin{lem}
-	\label{lem:StepsizeParameters}
-	[64, lemma 2] Let the diagonal matrices $\MatrixStepsize{1}, \MatrixStepsize{2}$ and the block matrix $\LinOpPPDS{}$ be set as Eq.~\eqref{eq:StepsizeMatrices} and \eqref{eq:LinearOperator}, respectively. In paticular,
-	\begin{align}
-	\label{eq:Preconditioners}
-	\ScalarStepsize{1, \IndexPrimal} & = \frac{1}{\sum_{\IndexDual = 1}^{\NumVarDual} \sum_{\IndexVarDual = 1}^{\DimVarDual{\IndexDual}} | \MatrixBrackets[\LinOpPPDS{\IndexDual, \IndexPrimal}]{\IndexVarDual, 1} |} , \: (\forall \IndexPrimal = 1, \ldots, \NumVarPrimal), \notag \\
-	\ScalarStepsize{2, \IndexDual} & = \frac{1}{\sum_{\IndexPrimal = 1}^{\NumVarPrimal} \sum_{\IndexVarPrimal = 1}^{\DimVarPrimal{\IndexPrimal}} | \MatrixBrackets[\LinOpPPDS{\IndexDual, \IndexPrimal}]{1, \IndexVarPrimal} |}, \: (\forall \IndexDual = 1, \ldots, \NumVarDual),
-	\end{align}
-	then the inquality in~\eqref{ieq:ConvergenceCondition} holds.
-\end{lem}
+where $\MaxSingularValue{\cdot}$ is the maximum singular value of $(\cdot)$. Then, the sequences $\left( \VarPrimal^{(\IdxAlg)} \right)_{\IdxAlg \in \mathbb{N}}$ converge to an optimal solution of Prob.~\eqref{prob:convex_optim_prob}~\cite{Chambolle2011PDS, Condat2013PDS}.
 
 
 \subsection{Weighted Spatial Difference Operator based on Spatial Graph by GSSTV~\cite{Takemoto2022GSSTV}}
@@ -150,7 +96,7 @@ The standard PDS needs to adjust the appropriate stepsize parameters to satisfy 
 Since we only obtain a noisy HS image in real situations, we construct a spatial graph via a guide image computed by
 \begin{equation}
     \label{eq:GuideImage}
-    \GuideImage(\IndexVert, \IndexHori) :=  \tfrac{1}{\NumBand} \sum \nolimits_{\IndexBand}^{\NumBand} \HSIObsv(\IndexVert, \IndexHori, \IndexBand),
+    \GuideImage(\IndexVert, \IndexHori) :=  \frac{1}{\NumBand} \sum_{\IndexBand=1}^{\NumBand} \HSIObsv(\IndexVert, \IndexHori, \IndexBand),
 \end{equation}
 where $\HSIObsv$ is a given HS image.
 The guide image is averaged in the spectral direction to reduce noise while maintaining the spatial structure. 
@@ -173,7 +119,8 @@ We also introduce the incidence matrix $\SpatialGraphIncidenceMatTwoD \in \RealS
 	\end{cases}
 	(\forall k = 1, \ldots, \NumVert \NumHori).
 \end{equation}
-To apply the spatial graph total variation to the entire HS image, we extend the weight matrix $\SpatialGraphWeightMatTwoD$ and the incidence matrix $\SpatialGraphIncidenceMatTwoD$. Let $\SpatialGraphWeightMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumBand  |\SpatialGraphEdgeSet|}$ and $\SpatialGraphIncidenceMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumAll}$ denote the block diagonal matrices consisting of $\NumBand $ repetitions of $\SpatialGraphWeightMatTwoD$ and $\SpatialGraphIncidenceMatTwoD$, respectively, defined as:
+To apply the spatial graph total variation to the entire HS image, we extend the weight matrix $\SpatialGraphWeightMatTwoD$ and the incidence matrix $\SpatialGraphIncidenceMatTwoD$ to block diagonal matrices $\SpatialGraphWeightMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumBand  |\SpatialGraphEdgeSet|}$ and $\SpatialGraphIncidenceMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumAll}$, each consisting of $\NumBand $ repetitions of $\SpatialGraphWeightMatTwoD$ and $\SpatialGraphIncidenceMatTwoD$, respectively, defined as:
+% To apply the spatial graph total variation to the entire HS image, we extend the weight matrix $\SpatialGraphWeightMatTwoD$ and the incidence matrix $\SpatialGraphIncidenceMatTwoD$. Let $\SpatialGraphWeightMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumBand  |\SpatialGraphEdgeSet|}$ and $\SpatialGraphIncidenceMat \in \RealSpace{\NumBand |\SpatialGraphEdgeSet| \times \NumAll}$ denote the block diagonal matrices consisting of $\NumBand $ repetitions of $\SpatialGraphWeightMatTwoD$ and $\SpatialGraphIncidenceMatTwoD$, respectively, defined as:
 \begin{equation}
 	\label{eq:ExtentionSpatialGraphMat}
 	\SpatialGraphWeightMat := \diag{(\SpatialGraphWeightMatTwoD, \dots, \SpatialGraphWeightMatTwoD)}, \quad
